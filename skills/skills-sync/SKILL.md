@@ -47,6 +47,32 @@ Generates the default global configuration file (`~/.config/skills_sync/skills.y
 
 - **When to use**: Usually only necessary for first-time setup if the file is missing.
 
+## `skills.yaml` Specification
+
+The `skills.yaml` file defines which skills are installed and where.
+
+### Target Directories (Root Keys)
+
+- `global`: Skills listed here are installed globally to `~/.agents/skills`.
+- `<path>` (e.g., `~/Git/my-project`): Skills listed here are installed locally to `.agents/skills` within the specified project directory. If the referenced path does not exist on the user's filesystem, `skills_sync` will skip it without error.
+
+### Skill Sources
+
+Under each target directory, you define the sources to fetch skills from:
+
+- `owner/repo`: A shorthand for a GitHub repository.
+- `https://github.com/owner/repo/tree/branch`: A specific branch or folder in a repository.
+- `/local/path/to/skills`: A local directory containing skills.
+
+### Skill Selection (Filters)
+
+For each source, you can specify a list of filters to determine which skills to install:
+
+- **Empty / Null**: If no filters are provided (just an empty key), all skills from the source are installed.
+- **Specific Names**: Provide the exact name of the skill (e.g., `flutter-expert`).
+- **Wildcards (`*`)**: Use wildcards to match multiple skills (e.g., `flutter-*` installs all skills starting with `flutter-`).
+- **Exclusions (`!`)**: Prefix a pattern with `!` to exclude matching skills (e.g., `!*-legacy` skips skills ending in `-legacy`). Exclusions take precedence over inclusions.
+
 ## Workflow Integration (e.g., with `skills-optimizer`)
 
 If you are modifying the user's `skills.yaml` (e.g., adding or removing skills):
