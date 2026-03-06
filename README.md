@@ -23,22 +23,36 @@ dart pub global activate skills_sync
 
 ## 使い方
 
-初めて使用する場合は、まず `init` コマンドで設定ファイルの雛形を生成します。
+### 2. 初期セットアップ
+
+プロジェクトのルートディレクトリで実行します：
 
 ```bash
 skills_sync init
 ```
 
-次に設定ファイルを編集します（デフォルトのエディタで開きます）。
+これにより、`~/.config/skills_sync/config.yaml`（初回のみ）と、プロジェクトごとの `skills.yaml` が生成されます。デフォルトで `skills-optimizer` を含む `mono0926/skills-sync` リポジトリが設定に含まれます。
 
-```bash
-skills_sync config
-```
+### 3. 同期
 
-設定が完了したら、`sync` コマンドでSkillsを同期（インストール／不要なものの削除）します。
+`skills.yaml` に基づいて Skills を同期します：
 
 ```bash
 skills_sync sync
+```
+
+### 4. Skills Optimizer の活用
+
+同期完了後、AI アシスタントに対して以下のように依頼してください：
+
+「Skillsを最適化して」
+「新しい技術スタックに合わせたSkillsを提案して」
+
+AI が `skills.yaml` の内容を分析し、最適な設定への更新をサポートします。自分で `skills.yaml` に追記する場合は以下のように記述します。
+
+```yaml
+global:
+  mono0926/skills-sync: []
 ```
 
 ### サブコマンド一覧
