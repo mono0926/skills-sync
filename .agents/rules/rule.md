@@ -14,4 +14,5 @@ trigger: always_on
 
 - @../../PUBLISHING.md 記載のコマンドを使ってリリース作業ができる
 - 前回のリリースとの差分を見て、CHANGELOGの更新および、セマンティックバージョニングに沿った`x.y.z`バージョンの適切な更新をする
+- GitHub Releaseの作成もセットで行う。`scripts/release.dart` によって自動化されている
 - ソースコードのレビュー・`dart pub publish --dry-run`結果の確認などして、もし怪しいところがあれば確認する

@@ -38,7 +38,8 @@ This script automatically performs the following tasks:
 1.  Updates the version in `pubspec.yaml`.
 2.  Inserts a version header into `CHANGELOG.md`.
 3.  Staging, committing, and tagging (`vx.y.z`) in Git.
-4.  Final confirmation before pushing.
+4.  Creating a GitHub Release with the latest changelog entries.
+5.  Final confirmation before pushing.
 
 ### 2. Adjust CHANGELOG.md (Optional)
 

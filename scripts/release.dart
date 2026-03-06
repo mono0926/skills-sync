@@ -102,11 +102,62 @@ void main(List<String> args) async {
     final push = logger.confirm('Push to origin?');
     if (push) {
       await _run('git', ['push', 'origin', 'main', nextTag], logger);
+
+      // 6. GitHub Release
+      final createRelease = logger.confirm('Create GitHub Release?');
+      if (createRelease) {
+        // Extract release notes from CHANGELOG.md
+        final changelog = File('CHANGELOG.md').readAsStringSync();
+        final releaseNotes = _extractReleaseNotes(changelog, nextVersion);
+
+        if (releaseNotes != null) {
+          final tempFile = File('.release_notes.md');
+          tempFile.writeAsStringSync(releaseNotes);
+
+          try {
+            await _run(
+              'gh',
+              [
+                'release',
+                'create',
+                nextTag,
+                '--title',
+                'v$nextVersion',
+                '--notes-file',
+                tempFile.path,
+              ],
+              logger,
+            );
+            logger.success('Successfully created GitHub release $nextTag! 🎁');
+          } finally {
+            if (tempFile.existsSync()) {
+              tempFile.deleteSync();
+            }
+          }
+        } else {
+          logger.warn('Could not extract release notes for $nextVersion.');
+        }
+      }
+
       logger.success('Successfully released $nextVersion! 🚀');
     }
   } else {
     logger.info('Commit aborted. Please handle git commands manually.');
   }
+}
+
+String? _extractReleaseNotes(String changelog, String version) {
+  final lines = changelog.split('\n');
+  final startIndex = lines.indexWhere((l) => l.startsWith('## $version'));
+  if (startIndex == -1) return null;
+
+  final notes = <String>[];
+  for (var i = startIndex + 1; i < lines.length; i++) {
+    final line = lines[i];
+    if (line.startsWith('## ')) break;
+    notes.add(line);
+  }
+  return notes.join('\n').trim();
 }
 
 Future<void> _run(String command, List<String> args, Logger logger) async {
