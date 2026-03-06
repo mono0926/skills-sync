@@ -64,7 +64,7 @@ skills_sync sync
 
 ## Configuration Example
 
-See [examples/mono/skills.yaml](https://github.com/mono0926/skills-sync/blob/main/examples/mono/skills.yaml) for a real-world example.
+See [example/mono/skills.yaml](https://github.com/mono0926/skills-sync/blob/main/example/mono/skills.yaml) for a real-world example.
 
 ```yaml
 global:
