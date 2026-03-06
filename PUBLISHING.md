@@ -7,11 +7,11 @@ It uses OIDC (OpenID Connect), so password or secret key management is not requi
 
 To enable automated publishing, you need to perform the following settings on `pub.dev`.
 
-1.  Access **[pub.dev/packages/[package_name]/admin](https://pub.dev/packages/[package_name]/admin)** (replace `[package_name]` with your package's name).
+1.  Access **[pub.dev/packages/skills_sync/admin](https://pub.dev/packages/skills_sync/admin)**.
 2.  Find the **Automated publishing** section.
 3.  Click **Enable publishing from GitHub Actions**.
 4.  Enter the following values and save.
-    - **Repository**: `owner/repo` (e.g., `mono0926/skills-sync` for this repository)
+    - **Repository**: `mono0926/skills-sync`
     - **Tag pattern**: `v{{version}}`
 
 ## Release Workflow
