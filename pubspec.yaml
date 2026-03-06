@@ -20,4 +20,3 @@ dev_dependencies:
 
 executables:
   skills-sync: skills_sync
-  skills_sync:
