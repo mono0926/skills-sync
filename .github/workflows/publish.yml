@@ -1,0 +1,12 @@
+name: Publish to pub.dev
+
+on:
+    push:
+        tags:
+            - "v[0-9]+.[0-9]+.[0-9]+*" # v1.2.3 などのタグに対応
+
+jobs:
+    publish:
+        permissions:
+            id-token: write # OIDC 認証に必須
+        uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
