@@ -5,7 +5,7 @@ It uses OIDC (OpenID Connect), so password or secret key management is not requi
 
 ## Release Workflow
 
-To release a new version to pub.dev, we use the `release-pub` skill which automates the process safely.
+To release a new version to pub.dev, we use the [`release-pub` skill](https://skills.sh/mono0926/skills/release-pub) which automates the process safely.
 
 Simply ask the AI Assistant:
 
