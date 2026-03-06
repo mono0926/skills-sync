@@ -7,7 +7,7 @@ import 'package:yaml/yaml.dart';
 
 class ListCommand extends SkillsSyncCommand {
   @override
-  String get description => '現在の設定とインストール済みのスキルを一覧表示します。';
+  String get description => '現在の設定とインストール済みのSkillsを一覧表示します。';
 
   @override
   String get name => 'list';
@@ -92,7 +92,7 @@ class ListCommand extends SkillsSyncCommand {
       }
 
       if (skillsPerSource.isEmpty) {
-        logger.info('  - (インストールされたスキルはありません)');
+        logger.info('  - (インストールされたSkillsはありません)');
       } else {
         final sources = skillsPerSource.keys.toList()..sort();
         for (final source in sources) {

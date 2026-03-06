@@ -16,13 +16,13 @@ class SyncCommand extends SkillsSyncCommand {
 
   @override
   String get description => '''
-skills.yaml を読み込み、各スキルをインストールします。
+skills.yaml を読み込み、各Skillsをインストールします。
 
-スキルの指定方法:
+Skillsの指定方法:
   - 全インストール: スキーマ名の後に何も書かない、あるいは空リスト `[]` 指定します。
-  - 個別指定: インストールしたいスキル名をリストで記述します。
-  - ワイルドカード指定: `*` を含むパターンを記述すると、合致する全スキルを対象にします (例: `*calendar*`)。
-  - 除外指定: `!` プレフィックスを使用すると、そのパターンに合致するスキルを除外します (例: `!recipe-*`)。
+  - 個別指定: インストールしたいSkills名をリストで記述します。
+  - ワイルドカード指定: `*` を含むパターンを記述すると、合致する全Skillsを対象にします (例: `*calendar*`)。
+  - 除外指定: `!` プレフィックスを使用すると、そのパターンに合致するSkillsを除外します (例: `!recipe-*`)。
 ''';
 
   @override
@@ -135,11 +135,11 @@ skills.yaml を読み込み、各スキルをインストールします。
     final diffs = <String?, Map<String, Map<String, String>>>{};
 
     if (!dryRun) {
-      logger.info('=== 既存のスキルを削除しています ===');
+      logger.info('=== 既存のSkillsを削除しています ===');
       for (final path in validPaths) {
         final workingDirectory = path != null ? expandPath(path) : null;
         final targetName = path ?? 'global';
-        final progress = logger.progress('🗑️  $targetName のスキルを削除中...');
+        final progress = logger.progress('🗑️  $targetName のSkillsを削除中...');
 
         final command = [
           'npx',
@@ -158,13 +158,13 @@ skills.yaml を読み込み、各スキルをインストールします。
         );
 
         if (result.exitCode == 0) {
-          progress.complete('🗑️  $targetName のスキルを削除しました');
+          progress.complete('🗑️  $targetName のSkillsを削除しました');
         } else {
-          progress.fail('🗑️  $targetName のスキル削除に失敗しました\n${result.stderr}');
+          progress.fail('🗑️  $targetName のSkills削除に失敗しました\n${result.stderr}');
           hasError = true;
         }
       }
-      logger.success('既存のスキル削除完了\n');
+      logger.success('既存のSkills削除完了\n');
     }
 
     // --- Resolve Patterns ---
@@ -177,7 +177,7 @@ skills.yaml を読み込み、各スキルをインストールします。
 
       final targetName = entry.targetPath ?? 'global';
       final progress = logger.progress(
-        '🔍 $targetName の利用可能なスキルを確認中 (${entry.source})...',
+        '🔍 $targetName の利用可能なSkillsを確認中 (${entry.source})...',
       );
 
       final listResult = await Process.run('npx', [
@@ -188,7 +188,7 @@ skills.yaml を読み込み、各スキルをインストールします。
       ], runInShell: true);
 
       if (listResult.exitCode != 0) {
-        progress.fail('❌ スキルリストの取得に失敗しました: ${entry.source}');
+        progress.fail('❌ Skillsリストの取得に失敗しました: ${entry.source}');
         resolvedEntries.add(entry);
         continue;
       }
@@ -214,14 +214,14 @@ skills.yaml を読み込み、各スキルをインストールします。
 
       if (matchedSkills.isEmpty) {
         progress.fail(
-          '⚠️  パターンに合致するスキルが見つかりませんでした: ${entry.patterns.join(', ')}',
+          '⚠️  パターンに合致するSkillsが見つかりませんでした: ${entry.patterns.join(', ')}',
         );
         continue;
       }
 
       progress.complete(
         '🔍 $targetName (${entry.source}) で '
-        '${matchedSkills.length} 個のスキルが見つかりました',
+        '${matchedSkills.length} 個のSkillsが見つかりました',
       );
 
       resolvedEntries.add(
@@ -446,9 +446,9 @@ skills.yaml を読み込み、各スキルをインストールします。
       progress?.complete('インストール処理が完了しました');
 
       if (hasError) {
-        logger.warn('\n⚠️  一部のスキルでエラーが発生しました');
+        logger.warn('\n⚠️  一部のSkillsでエラーが発生しました');
       } else {
-        logger.success('\n全てのスキルをインストール/確認しました');
+        logger.success('\n全てのSkillsをインストール/確認しました');
       }
     }
 
@@ -484,7 +484,7 @@ skills.yaml を読み込み、各スキルをインストールします。
         }
 
         if (skillsPerSource.isEmpty) {
-          logger.info('  - (インストールされたスキルはありません)');
+          logger.info('  - (インストールされたSkillsはありません)');
         } else {
           final sources = skillsPerSource.keys.toList()..sort();
           for (final source in sources) {
@@ -517,7 +517,7 @@ skills.yaml を読み込み、各スキルをインストールします。
         } else {
           logger
             ..info('\n    [変更点]')
-            ..info('    🔄 すべての既存スキルを最新状態に同期しました (差分なし)');
+            ..info('    🔄 すべての既存Skillsを最新状態に同期しました (差分なし)');
         }
       }
     }

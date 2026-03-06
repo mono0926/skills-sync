@@ -14,12 +14,12 @@ abstract class SkillsSyncCommand extends Command<int> {
     );
   }
 
-  /// インインストールされているスキルの内容を埋め込んだ定数
+  /// インインストールされているSkillsの内容を埋め込んだ定数
   /// `dart compile exe` 等でバイナリ化された際も利用可能にするため
   static const String bundledSkillContent = r'''
 # Skills Optimizer Skill
 
-... (スキルの内容をここに埋め込む) ...
+... (Skillsの内容をここに埋め込む) ...
 ''';
 
   Future<bool> checkNpx() async {
@@ -56,7 +56,7 @@ abstract class SkillsSyncCommand extends Command<int> {
     return path;
   }
 
-  /// 同梱スキルのパス（取得できない場合は null）
+  /// 同梱Skillsのパス（取得できない場合は null）
   /// 正式版ではアセットとして埋め込むのが確実
   Future<String?> getBundledSkillPath() async {
     // 1. まず package URI での解決を試みる (pub global activate 用)

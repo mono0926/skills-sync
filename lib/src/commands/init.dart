@@ -38,26 +38,26 @@ class InitCommand extends SkillsSyncCommand {
 #
 # 記法例:
 # global:
-#   # インストールしたスキルを ~ / .agents / skills / 配下にグローバルに配置します。
-#   # スキーマ名: [スキル名1, スキル名2, ...]
-#   mono0926/script: [] # 全スキルをインストール
+#   # インストールしたSkillsを ~ / .agents / skills / 配下にグローバルに配置します。
+#   # スキーマ名: [Skills名1, Skills名2, ...]
+#   mono0926/script: [] # 全Skillsをインストール
 #
 # ~/Git/my-project:
-#   # 特定のディレクトリ配下にスキルを配置する場合
+#   # 特定のディレクトリ配下にSkillsを配置する場合
 #   mono0926/script:
 #     - skills-optimizer
-#     - "!recipe-*" # recipe- で始まるスキルを除外
+#     - "!recipe-*" # recipe- で始まるSkillsを除外
 #   anthropic/skills:
-#     - "flutter-*" # flutter- で始まるスキルをワイルドカード指定
+#     - "flutter-*" # flutter- で始まるSkillsをワイルドカード指定
 
 global:
-  mono0926/script: [] # skills-optimizer を含む基本スキルセット
+  mono0926/script: [] # skills-optimizer を含む基本Skillsセット
 ''';
 
     configFile.writeAsStringSync(template);
     logger
       ..success('設定ファイルを生成しました: ${configFile.path}')
-      ..info('\n次に `skills_sync sync` を実行してスキルをインストールしてください。');
+      ..info('\n次に `skills_sync sync` を実行してSkillsをインストールしてください。');
 
     return 0;
   }
