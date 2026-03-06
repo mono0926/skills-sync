@@ -1,3 +1,6 @@
+## \[0.0.5\]
+- docs: recommend using `find-skills` in `skills-optimizer` for discovering high-quality skills.
+
 ## \[0.0.4\]
 - docs: update `skills-optimizer` and `skills-sync` skills with AI coordination guidelines.
 - fix: resolve syntax and lint errors in `sync.dart`.
@@ -22,4 +25,5 @@
 ## \[0.0.1\]
 - Initial version.
 
+## 0.0.5 - 2026-03-06
 ## 0.0.4 - 2026-03-06
