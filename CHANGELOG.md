@@ -1,45 +1,51 @@
+## 0.1.2 - 2026-03-06
+
+### Documentation
+- Updated existing Japanese changelog entries to English for better accessibility.
+
 ## 0.1.1 - 2026-03-06
 
 ### Documentation
-- pub.dev 公開用の `release-pub` スキルを別プロジェクトである事を示すため、グローバルインストール版の同スキルへのリンクに修正
+
+- Fixed the reference to the `release-pub` skill to point to its globally installed version to clarify it's a separate project.
 
 ## 0.1.0 - 2026-03-06
 
 ### Features
 
-- 外部の `release-pub` スキル (https://skills.sh/mono0926/skills/release-pub) をプロジェクトの公式リリースプロセスとして導入
+- Introduced the external [`release-pub` skill](https://skills.sh/mono0926/skills/release-pub) as the official release process.
 
 ### Documentation
 
-- pub.dev への自動リリース (GitHub Actions & OIDC連携) についてのドキュメントと初期セットアップ手順を、`release-pub` スキルを用いたプロセスに統合・更新
+- Integrated and updated the documentation and initial setup instructions for automated `pub.dev` releases (GitHub Actions & OIDC) into the `release-pub` skill workflow.
 
 ### Chores
 
-- `skills.yaml` サンプルのスキル定義を更新
+- Updated the skill definitions in the `skills.yaml` example.
 
-## \[0.0.8\]
+## [0.0.8]
 
 - docs: add `skills.yaml` specifications to `skills-sync/SKILL.md`.
 
-## \[0.0.7\]
+## [0.0.7]
 
 - docs: fix insecure local file links in `README.md` to resolve pub.dev deductions.
 
-## \[0.0.6\]
+## [0.0.6]
 
 - docs: officially release the `skills-optimizer` AI guidelines update and add `.agents/rules/rule.md` step for releases.
 
-## \[0.0.5\]
+## [0.0.5]
 
 - docs: recommend using `find-skills` in `skills-optimizer` for discovering high-quality skills.
 
-## \[0.0.4\]
+## [0.0.4]
 
 - docs: update `skills-optimizer` and `skills-sync` skills with AI coordination guidelines.
 - fix: resolve syntax and lint errors in `sync.dart`.
 - fix: improve release notes extraction script to support bracketed version headers.
 
-## \[0.0.3\]
+## [0.0.3]
 
 - feat: add confirmation prompt for `sync` command to prevent accidental deletion.
 - feat: add `--yes` (`-y`) flag to `sync` command to skip confirmation.
@@ -49,7 +55,7 @@
 - docs: add prominent warning about `sync` command behavior in README.
 - chore: improve pana score by adding documentation and refining example.
 
-## \[0.0.2\]
+## [0.0.2]
 
 - fix: resolve deadlock and missing output in `skills_sync` parallel process streams.
 - refactor: translate CLI descriptions and error messages to English and reorganize example files.
@@ -57,16 +63,6 @@
 - chore: optimize release automation script with `cider` and fix `pana` issues.
 - docs: update README examples and link to live usage.
 
-## \[0.0.1\]
+## [0.0.1]
 
 - Initial version.
-
-## 0.0.8 - 2026-03-06
-
-## 0.0.7 - 2026-03-06
-
-## 0.0.6 - 2026-03-06
-
-## 0.0.5 - 2026-03-06
-
-## 0.0.4 - 2026-03-06
