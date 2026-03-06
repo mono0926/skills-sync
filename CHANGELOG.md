@@ -1,3 +1,14 @@
+## 0.1.0 - 2026-03-06
+
+### Features
+- `release-pub` スキルを追加し、プロジェクトの公式リリースプロセスとして設定
+
+### Documentation
+- pub.dev への自動リリース (GitHub Actions & OIDC連携) についてのドキュメントと初期セットアップ手順を、`release-pub` スキルを用いたプロセスに統合・更新
+
+### Chores
+- `skills.yaml` サンプルのスキル定義を更新
+
 ## \[0.0.8\]
 - docs: add `skills.yaml` specifications to `skills-sync/SKILL.md`.
 
