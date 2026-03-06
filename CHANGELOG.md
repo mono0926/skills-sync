@@ -1,3 +1,12 @@
+## 0.2.0 - 2026-03-07
+
+### Features
+- Added 'update' command to quickly update all installed skills across all targets.
+- Enhanced 'sync' command with a default '--clean' behavior for thorough synchronization.
+- Added '--agent <name>' option to 'sync' and 'update' commands to support multiple agents (default: 'antigravity').
+- Added user confirmation prompt for destructive operations in 'sync' command.
+- Integrated security audit cache and lockfile management improvements.
+
 ## 0.1.2 - 2026-03-06
 
 ### Documentation
