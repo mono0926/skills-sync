@@ -7,6 +7,7 @@ import 'package:yaml/yaml.dart';
 
 /// The command that synchronizes skills based on the configuration file.
 class SyncCommand extends SkillsSyncCommand {
+  /// Creates a new [SyncCommand].
   SyncCommand() {
     argParser.addFlag(
       'dry-run',

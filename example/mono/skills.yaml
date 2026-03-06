@@ -1,6 +1,7 @@
 global:
   # 全スキルインストールの場合は空リストにする
   mono0926/skills:
+  mono0926/skills-sync:
   google-gemini/gemini-skills:
     - '*'
     - '!gemini-api-dev' # gemini-interactions-api との重複を避けるため

@@ -18,6 +18,7 @@ abstract class SkillsSyncCommand extends Command<int> {
   /// The logger instance for commands.
   late final Logger logger;
 
+  /// Checks if the `npx` command is available.
   Future<bool> checkNpx() async {
     try {
       final result = await Process.run('npx', ['--version'], runInShell: true);
@@ -27,6 +28,8 @@ abstract class SkillsSyncCommand extends Command<int> {
     }
   }
 
+  /// Finds the configuration file, either from explicit path, project,
+  /// or global.
   File? findConfigFile(String? explicitPath) {
     if (explicitPath != null) {
       final file = File(explicitPath);
@@ -51,6 +54,7 @@ abstract class SkillsSyncCommand extends Command<int> {
     return globalSkillsFile.existsSync() ? globalSkillsFile : null;
   }
 
+  /// Expands paths starting with `~/` to the full path.
   String expandPath(String path) {
     if (path.startsWith('~/')) {
       final home = Platform.environment['HOME'] ?? '';
@@ -59,6 +63,7 @@ abstract class SkillsSyncCommand extends Command<int> {
     return path;
   }
 
+  /// Parses the skills configuration YAML into a list of [SkillEntry].
   List<SkillEntry> parseSkillEntries(YamlMap yaml) {
     final entries = <SkillEntry>[];
 
