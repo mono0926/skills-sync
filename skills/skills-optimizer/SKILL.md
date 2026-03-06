@@ -5,7 +5,7 @@ description: Optimizes the user's skills.yaml configuration, offering tailored s
 
 # Skills Optimizer
 
-A dedicated skill for optimizing the `config/skills.yaml` file. It aims to streamline existing skills, suggest high-quality additions customized for the user's profile, and maintain a clean, secure environment.
+A dedicated skill for optimizing the `skills.yaml` file (global: `~/.config/skills_sync/skills.yaml` or project-local: `./skills.yaml`). It aims to streamline existing skills, suggest high-quality additions customized for the user's profile, and maintain a clean, secure environment.
 
 ## Context: Understanding User Setup
 
@@ -21,14 +21,15 @@ Strictly follow these steps when this skill is invoked:
 
 ### 1. Current State Analysis
 
-Read the current `config/skills.yaml`. Note the installed repositories, wildcard installations (`*`), and excluded skills (`!`).
+Read the current `skills.yaml`. Note that project-local `./skills.yaml` takes precedence over global `~/.config/skills_sync/skills.yaml`. Analyze the installed repositories, wildcard installations (`*`), and excluded skills (`!`).
 
 ### 2. Identifying High-Quality Skills & Security Audit
 
 Recommend top-tier skills related to the user's tech stack (e.g., official repositories for Frameworks, Cloud providers, and tools the user prefers). Focus on skills that significantly enhance code quality and architectural alignment.
 
 **[CRITICAL: Security and Quality Pre-Audit]**
-The `npx skills` tool essentially downloads configuration files from target repositories and lacks an inherent mechanism for deep security verification. Therefore, **before proposing new skills, you MUST research the target repository (reading SKILL.md and auditing files in scripts/, etc.) and verify the following:**
+
+The `skills_sync` tool downloads configuration files from target repositories and lacks an inherent mechanism for deep security verification of the skill's logic itself. Therefore, **before proposing new skills, you MUST research the target repository (reading SKILL.md and auditing files in scripts/, etc.) and verify the following:**
 
 - **Security Check**: Ensure there are no unauthorized network communications (data leakage), destructive commands (excessive deletion permissions like `rm -rf`), or suspicious obfuscated scripts.
 - **Quality Check**: Verify that the prompt instructions align with the user's high-quality, modern development standards. Assess risks of poor instructions or prompt injection flaws.
@@ -53,7 +54,7 @@ Present your analysis and audit results to the user:
 
 Once the user provides their preference:
 
-1. Update `config/skills.yaml` based on the user's choices.
+1. Update `skills.yaml` based on the user's choices.
 2. Maintain the original structure of YAML comments and formatting.
 3. **Automatically apply changes:** Run `skills_sync sync` in the terminal to apply the configuration changes. You do not need the user to run it; do it for them.
 4. Confirm successful synchronization with the user.
@@ -61,4 +62,5 @@ Once the user provides their preference:
 ## Best Practices
 
 - **NEVER modify `skills.yaml` without explicit consent from the user.**
+- **Prefer Project-Local Config**: If the user is working on a specific project, check if a project-local `skills.yaml` exists or should be created instead of modifying the global one.
 - Keep communication helpful, concise, and professional, adhering to any user-specific language or behavioral rules.

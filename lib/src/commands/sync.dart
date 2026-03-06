@@ -9,11 +9,18 @@ import 'package:yaml/yaml.dart';
 class SyncCommand extends SkillsSyncCommand {
   /// Creates a new [SyncCommand].
   SyncCommand() {
-    argParser.addFlag(
-      'dry-run',
-      negatable: false,
-      help: 'Only show what would be done without making any changes.',
-    );
+    argParser
+      ..addFlag(
+        'dry-run',
+        negatable: false,
+        help: 'Only show what would be done without making any changes.',
+      )
+      ..addFlag(
+        'yes',
+        abbr: 'y',
+        negatable: false,
+        help: 'Skip confirmation prompt and proceed with syncing.',
+      );
   }
 
   @override
@@ -106,6 +113,25 @@ class SyncCommand extends SkillsSyncCommand {
     final beforeLocks = <String?, Map<String, dynamic>>{};
     for (final path in validPaths) {
       beforeLocks[path] = readLock(path);
+    }
+
+    final yes = argResults?['yes'] as bool? ?? false;
+
+    if (!dryRun && !yes) {
+      logger
+        ..warn(
+          '⚠️  WARNING: This command will DELETE all existing skills in the '
+          'target directories before syncing.',
+        )
+        ..info('Target locations:');
+      for (final path in validPaths) {
+        logger.info('  - ${path ?? 'global'}');
+      }
+      if (!logger.confirm('\nDo you want to proceed?')) {
+        logger.info('Sync cancelled.');
+        return 0;
+      }
+      logger.info('');
     }
 
     final diffs = <String?, Map<String, Map<String, String>>>{};
@@ -213,22 +239,21 @@ class SyncCommand extends SkillsSyncCommand {
       );
     }
 
-    final progress = dryRun
-        ? null
-        : logger.progress('Executing installation (parallel)...');
-
-    // --- Parallel Install ---
+    // --- Sequential Install ---
     final activeEntries = <SkillEntry>[];
-    final resultFutures = <Future<ProcessResult>>[];
+    final results = <ProcessResult>[];
+
     for (final entry in resolvedEntries) {
       if (entry.targetPath != null && skippedPaths.contains(entry.targetPath)) {
         continue;
       }
       activeEntries.add(entry);
+
       final workingDirectory = entry.targetPath != null
           ? expandPath(entry.targetPath!)
           : null;
       final command = _buildCommand(entry);
+      final targetName = entry.targetPath ?? 'global';
 
       if (dryRun) {
         final wdStr = workingDirectory != null ? ' (in $workingDirectory)' : '';
@@ -236,10 +261,12 @@ class SyncCommand extends SkillsSyncCommand {
         continue;
       }
 
-      final targetName = entry.targetPath ?? 'global';
+      final installProgress = logger.progress(
+        'Installing skills from ${entry.source} to $targetName...',
+      );
 
-      final futureResult =
-          Process.start(
+      final result =
+          await Process.start(
             command.first,
             command.sublist(1),
             runInShell: true,
@@ -252,9 +279,7 @@ class SyncCommand extends SkillsSyncCommand {
                 .transform(utf8.decoder)
                 .transform(const LineSplitter())
                 .listen((line) {
-                  if (line.trim().isEmpty) {
-                    return;
-                  }
+                  if (line.trim().isEmpty) return;
                   stdoutLines.add(line);
                   logger.detail('[$targetName] $line');
                 })
@@ -264,9 +289,7 @@ class SyncCommand extends SkillsSyncCommand {
                 .transform(utf8.decoder)
                 .transform(const LineSplitter())
                 .listen((line) {
-                  if (line.trim().isEmpty) {
-                    return;
-                  }
+                  if (line.trim().isEmpty) return;
                   stderrLines.add(line);
                   logger.warn('[$targetName:stderr] $line');
                 })
@@ -283,30 +306,22 @@ class SyncCommand extends SkillsSyncCommand {
             );
           });
 
-      resultFutures.add(futureResult);
+      if (result.exitCode == 0) {
+        installProgress.complete('Installed skills from ${entry.source}.');
+      } else {
+        installProgress.fail(
+          'Failed to install skills from ${entry.source} (exit code: ${result.exitCode})',
+        );
+        hasError = true;
+      }
+
+      results.add(result);
     }
 
     if (!dryRun) {
-      final results = await Future.wait(resultFutures);
-
       final afterLocks = <String?, Map<String, dynamic>>{};
       for (final path in validPaths) {
         afterLocks[path] = readLock(path);
-      }
-
-      for (final result in results) {
-        final stdoutStr = result.stdout.toString();
-        final stderrStr = result.stderr.toString();
-        if (stdoutStr.isNotEmpty) {
-          logger.info(stdoutStr.trim());
-        }
-        if (stderrStr.isNotEmpty) {
-          logger.warn(stderrStr.trim());
-        }
-        if (result.exitCode != 0) {
-          logger.warn('⚠️  Exit code: ${result.exitCode}');
-          hasError = true;
-        }
       }
 
       for (final path in validPaths) {
@@ -384,9 +399,8 @@ class SyncCommand extends SkillsSyncCommand {
           for (final skill in extractedSkills) {
             final existing = allPossible[skill] as Map<String, dynamic>?;
             mergedSkills[skill] = <String, dynamic>{
+              if (existing != null) ...existing,
               'source': entry.source,
-              'sourceType': existing?['sourceType'] ?? 'github',
-              'computedHash': existing?['computedHash'] ?? '',
             };
           }
         }
@@ -423,7 +437,6 @@ class SyncCommand extends SkillsSyncCommand {
         };
         writeLock(path, finalLock);
       }
-      progress?.complete('Installation process completed.');
 
       if (hasError) {
         logger.warn('\n⚠️  Errors occurred while syncing some skills.');

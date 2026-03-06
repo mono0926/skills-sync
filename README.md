@@ -21,40 +21,39 @@ dart pub global activate skills_sync
 
 ## Quick Start
 
-1. **Initialize**: Run `skills_sync init` to generate the default global configuration at `~/.config/skills_sync/skills.yaml`.
-2. **Configure**: Edit the global configuration to add your favorite skill sources.
-3. **Sync**: Run `skills_sync sync` to install and update skills in your project.
+1.  **Initialize**: Run `skills_sync init` to generate the default global configuration at `~/.config/skills_sync/skills.yaml`.
+2.  **Configure**: Edit the configuration to add your favorite skill sources.
+3.  **Sync**: Run `skills_sync sync` in your project to install and update skills.
 
 ---
-
----
-
-## Installation
-
-```bash
-dart pub global activate skills_sync
-```
-
-## Quick Start
 
 ## Detailed Usage
 
 ### 1. Initialization
 
-Run this in your project root:
+Run the following command to set up your configuration:
 
 ```bash
 skills_sync init
 ```
 
-This generates `~/.config/skills_sync/skills.yaml`. By default, `skills_sync` uses this global configuration to manage skills across all your projects.
+This generates `~/.config/skills_sync/skills.yaml`. By default, `skills_sync` uses this global configuration.
 
-> [!NOTE]
+> [!TIP]
 > You can also place a `skills.yaml` in your project root for project-specific settings. If present, it will take precedence over the global configuration.
 
-### 2. Synchronization
+### 2. Configuration
 
-Sync your skills based on `skills.yaml`:
+Edit the global or project-local `skills.yaml` to specify which skills to sync. You can use wildcards (`*`) and exclusions (`!`).
+
+### 3. Synchronization
+
+> [!WARNING]
+> Running `sync` will **delete all existing skills** in the target directories before installing the ones defined in your configuration.
+>
+> Use the `-y` or `--yes` flag to skip the confirmation prompt in non-interactive environments.
+
+Apply your configuration changes by running:
 
 ```bash
 skills_sync sync

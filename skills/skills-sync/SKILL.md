@@ -9,7 +9,12 @@ A skill for using the `skills_sync` CLI tool, which is used to manage and sync A
 
 ## Context
 
-The `skills_sync` tool reads a configuration file (defaulting to `~/.config/skills_sync/skills.yaml`) and synchronizes the user's local skills directory (typically `~/.agents/skills`) with remote repositories.
+The `skills_sync` tool reads a configuration file and synchronizes the user's local skills directory (typically `~/.agents/skills`) with remote repositories.
+
+**Configuration Precedence**:
+
+1. Project-specific: `./skills.yaml`
+2. Global: `~/.config/skills_sync/skills.yaml`
 
 **Crucial Note**: When another skill (like `skills-optimizer`) modifies the `skills.yaml` configuration, those changes are NOT automatically applied. You MUST run `skills_sync sync` to download new skills, remove deleted ones, and apply exclusions.
 
@@ -46,12 +51,15 @@ Generates the default global configuration file (`~/.config/skills_sync/skills.y
 
 If you are modifying the user's `skills.yaml` (e.g., adding or removing skills):
 
-1. **Modify the configuration**: Edit the `~/.config/skills_sync/skills.yaml` file according to the user's instructions or your optimization logic.
-2. **Apply the changes**: Execute `skills_sync sync` via the command line to ensure the changes take effect.
-3. **Verify**: Optionally, run `skills_sync list` to confirm the installation matches expectations.
+1. **Identify the config file**: Check if a project-local `skills.yaml` exists. If not, use the global `~/.config/skills_sync/skills.yaml`.
+2. **Modify the configuration**: Edit the identified `skills.yaml` file according to the user's instructions or your optimization logic.
+3. **Apply the changes**: Execute `skills_sync sync` via the command line to ensure the changes take effect.
+4. **Verify**: Optionally, run `skills_sync list` to confirm the installation matches expectations.
 
 ## Best Practices
 
+- **Do not execute `sync` automatically**: NEVER run `skills_sync sync` without explicit user permission. Always ask the user if they want to apply the changes after you have modified the configuration.
+- **Transparency in Configuration**: Do not modify `skills.yaml` silently. Clearly explain which skills you are adding or removing and why, ensuring the user maintains full awareness of their installed skills at all times.
 - **Do not guess file paths**: Always rely on the `skills_sync` tool to handle the installation logic, cloning, and copying. Don't try to manually download zip files or clone repos with `git` to `~/.agents/skills` unless specifically requested to bypass the tool.
 - **Wait for completion**: `skills_sync sync` might take a moment if it needs to download large repositories. Allow the command to finish.
 - **Dry runs are not currently supported**: If you change the yaml and run sync, it will make destructive changes (deleting unlisted skills). Be sure of the user's intent before syncing after a configuration removal.
