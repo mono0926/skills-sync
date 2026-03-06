@@ -7,7 +7,11 @@
 - **Skillsの簡単インストール**: `skills.yaml` に記述されたSkills定義に従って、過不足なく一括でインストール・同期します。
 - **ワイルドカード/除外サポート**: Skills名にワイルドカード（`*`）や除外（`!`）を使用して、柔軟に構成を管理できます。
 - **並列インストール**: 複数のリポジトリからのSkillsインストールを並列で実行し、高速にセットアップを完了します。
-- **Skills Optimizerの同梱**: 本ツールに同梱の `skills-optimizer` をインストールすれば、対話を通じて `skills.yaml` の最適化・クリーンアップもサポートします。
+- **Skills Optimizer による継続的な最適化**: `skills.yaml` に `mono0926/skills-sync` を追加することで、専用の Skills が利用可能になります。
+  - **メリット**:
+    - 💡 **コンテキストの節約**: 不要な Skills を整理し、AI が本来の作業に集中できる環境を作ります。
+    - 🛡️ **セキュリティ監査**: 新しく追加する Skills を AI が事前に読み取って安全性を確認します。
+    - 🚀 **スタック最適化**: ユーザーの技術スタックに合わせた最適な Skills を AI が自ら提案します。
 
 ## インストール
 
@@ -65,6 +69,7 @@ skills_sync sync --config my-skills.yaml
 
 ```yaml
 global:
+  mono0926/skills-sync: [] # Skills Optimizer を含む
   anthropics/skills:
     - '*' # 全Skills
     - '!recipe-*' # recipeで始まるSkillsを除外

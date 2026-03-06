@@ -55,22 +55,6 @@ Skillsの指定方法:
     final yaml = loadYaml(yamlString) as YamlMap;
     final entries = parseSkillEntries(yaml);
 
-    // 同梱された skills-optimizer 自体を一覧に追加（まだ存在しない場合）
-    final bundledSkillPath = await getBundledSkillPath();
-    if (bundledSkillPath != null) {
-      final alreadyHasOptimizer = entries.any(
-        (e) => e.source.contains('skills-optimizer'),
-      );
-      if (!alreadyHasOptimizer) {
-        entries.add(
-          SkillEntry(
-            source: bundledSkillPath,
-            skills: ['skills-optimizer'],
-          ),
-        );
-      }
-    }
-
     if (dryRun) {
       logger.info('=== Dry Run: 以下のコマンドを実行します ===\n');
     }

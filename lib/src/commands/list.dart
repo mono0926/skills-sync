@@ -35,22 +35,6 @@ class ListCommand extends SkillsSyncCommand {
     final yaml = loadYaml(yamlString) as YamlMap;
     final entries = parseSkillEntries(yaml);
 
-    // 同梱された skills-optimizer 自体を一覧に追加（まだ存在しない場合）
-    final bundledSkillPath = await getBundledSkillPath();
-    if (bundledSkillPath != null) {
-      final alreadyHasOptimizer = entries.any(
-        (e) => e.source.contains('skills-optimizer'),
-      );
-      if (!alreadyHasOptimizer) {
-        entries.add(
-          SkillEntry(
-            source: bundledSkillPath,
-            skills: ['skills-optimizer'],
-          ),
-        );
-      }
-    }
-
     final validPaths = <String?>{null};
     for (final entry in entries) {
       if (entry.targetPath != null) {

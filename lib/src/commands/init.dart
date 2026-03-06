@@ -51,7 +51,7 @@ class InitCommand extends SkillsSyncCommand {
 #     - "flutter-*" # flutter- で始まるSkillsをワイルドカード指定
 
 global:
-  mono0926/script: [] # skills-optimizer を含む基本Skillsセット
+  mono0926/skills-sync: [] # Skills Optimizer を含む基本Skillsセット
 ''';
 
     configFile.writeAsStringSync(template);
