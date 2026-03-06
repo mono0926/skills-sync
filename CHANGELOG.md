@@ -1,3 +1,9 @@
+## 0.2.1 - 2026-03-07
+
+### Refactor
+- Fixed static analysis warnings to ensure zero-tolerance lint cleanliness.
+- Internal structural improvements for better maintainability.
+
 ## 0.2.0 - 2026-03-07
 
 ### Features
