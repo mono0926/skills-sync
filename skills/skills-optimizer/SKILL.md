@@ -27,6 +27,9 @@ Read the current `skills.yaml`. Note that project-local `./skills.yaml` takes pr
 
 Recommend top-tier skills related to the user's tech stack (e.g., official repositories for Frameworks, Cloud providers, and tools the user prefers). Focus on skills that significantly enhance code quality and architectural alignment.
 
+**[TIP: Using find-skills]**
+To discover high-quality skills across the ecosystem, you are encouraged to use the **[find-skills](https://skills.sh/vercel-labs/skills/find-skills)** skill. It can help you search for and identify well-maintained skills that match the user's requirements.
+
 **[CRITICAL: Security and Quality Pre-Audit]**
 
 The `skills_sync` tool downloads configuration files from target repositories and lacks an inherent mechanism for deep security verification of the skill's logic itself. Therefore, **before proposing new skills, you MUST research the target repository (reading SKILL.md and auditing files in scripts/, etc.) and verify the following:**

@@ -13,6 +13,7 @@ trigger: always_on
 
 ## リリース作業
 
+- **【重要】リリース作業を開始する前に、すべての変更が `git commit` されていることを必ず確認・徹底すること。** (`scripts/release.dart` はバージョン関連のファイルしかコミットに含めません)
 - @../../PUBLISHING.md 記載のコマンドを使ってリリース作業ができる
 - 前回のリリースとの差分を見て、CHANGELOGの更新および、セマンティックバージョニングに沿った`x.y.z`バージョンの適切な更新をする
 - GitHub Releaseの作成もセットで行う。`scripts/release.dart` によって自動化されている
