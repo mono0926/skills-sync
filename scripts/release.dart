@@ -111,8 +111,8 @@ void main(List<String> args) async {
         final releaseNotes = _extractReleaseNotes(changelog, nextVersion);
 
         if (releaseNotes != null) {
-          final tempFile = File('.release_notes.md');
-          tempFile.writeAsStringSync(releaseNotes);
+          final tempFile = File('.release_notes.md')
+            ..writeAsStringSync(releaseNotes);
 
           try {
             await _run(
@@ -149,12 +149,16 @@ void main(List<String> args) async {
 String? _extractReleaseNotes(String changelog, String version) {
   final lines = changelog.split('\n');
   final startIndex = lines.indexWhere((l) => l.startsWith('## $version'));
-  if (startIndex == -1) return null;
+  if (startIndex == -1) {
+    return null;
+  }
 
   final notes = <String>[];
   for (var i = startIndex + 1; i < lines.length; i++) {
     final line = lines[i];
-    if (line.startsWith('## ')) break;
+    if (line.startsWith('## ')) {
+      break;
+    }
     notes.add(line);
   }
   return notes.join('\n').trim();

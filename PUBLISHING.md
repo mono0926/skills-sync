@@ -18,7 +18,16 @@ To enable automated publishing, you need to perform the following settings on `p
 
 Follow these steps to release a new version.
 
-### 1. Run the Release Script
+### 1. Pre-release Checks
+
+Before running the release script, ensure that the code is formatted and there are no analysis issues.
+
+```bash
+dart format .
+dart analyze
+```
+
+### 2. Run the Release Script
 
 Run the following command in the project root directory.
 
