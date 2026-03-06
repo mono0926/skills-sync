@@ -4,6 +4,7 @@ import 'package:skills_sync/src/commands/config.dart';
 import 'package:skills_sync/src/commands/init.dart';
 import 'package:skills_sync/src/commands/list.dart';
 import 'package:skills_sync/src/commands/sync.dart';
+import 'package:skills_sync/src/commands/update.dart';
 import 'package:skills_sync/src/exceptions.dart';
 import 'package:skills_sync/src/logger.dart';
 
@@ -13,6 +14,7 @@ class SkillsSyncCommandRunner extends CompletionCommandRunner<int> {
   SkillsSyncCommandRunner()
     : super('skills_sync', 'A CLI tool to keep AI Agent Skills in sync.') {
     addCommand(SyncCommand());
+    addCommand(UpdateCommand());
     addCommand(ListCommand());
     addCommand(InitCommand());
     addCommand(ConfigCommand());

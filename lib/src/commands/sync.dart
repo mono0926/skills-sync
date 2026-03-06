@@ -32,6 +32,11 @@ class SyncCommand extends SkillsSyncCommand {
         abbr: 'a',
         help: 'Specify the agent name to install skills for.',
         defaultsTo: 'antigravity',
+      )
+      ..addFlag(
+        'clean',
+        help: 'Delete all existing skills before syncing.',
+        defaultsTo: true,
       );
   }
 
@@ -53,6 +58,7 @@ class SyncCommand extends SkillsSyncCommand {
     final dryRun = argResults?['dry-run'] as bool? ?? false;
     final configPath = argResults?['config'] as String?;
     final agent = argResults?['agent'] as String? ?? 'antigravity';
+    final clean = argResults?['clean'] as bool? ?? false;
     final configFile = findConfigFile(configPath);
 
     if (configFile == null) {
@@ -131,31 +137,39 @@ class SyncCommand extends SkillsSyncCommand {
 
     final yes = argResults?['yes'] as bool? ?? false;
 
-    if (!dryRun && !yes) {
+    if (!yes && clean) {
+      final targetDirs = validPaths.map((p) => p ?? 'global').join('\n  - ');
       logger
         ..warn(
-          '⚠️  WARNING: This command will DELETE all existing skills in the '
-          'target directories before syncing.',
+          '⚠️  WARNING: This command will DELETE all existing skills in the target directories before syncing.',
         )
-        ..info('Target locations:');
-      for (final path in validPaths) {
-        logger.info('  - ${path ?? 'global'}');
+        ..info('Target locations:\n  - $targetDirs\n');
+
+      if (!dryRun) {
+        final confirmed = logger.confirm('Do you want to proceed?');
+        if (!confirmed) {
+          return 0;
+        }
+        logger.info('');
+      } else {
+        logger.info('=== Dry Run: Skipping confirmation prompt ===\n');
       }
-      if (!logger.confirm('\nDo you want to proceed?')) {
-        logger.info('Sync cancelled.');
-        return 0;
-      }
-      logger.info('');
     }
 
     final diffs = <String?, Map<String, dynamic>>{};
 
-    if (!dryRun) {
-      logger.info('=== Removing existing skills ===');
+    if (clean) {
+      if (dryRun) {
+        logger.info(
+          '=== Dry Run: The following removal commands would be executed ===',
+        );
+      } else {
+        logger.info('=== Removing existing skills ===');
+      }
+
       for (final path in validPaths) {
         final workingDirectory = path != null ? expandPath(path) : null;
         final targetName = path ?? 'global';
-        final progress = logger.progress('Removing skills for $targetName...');
 
         final command = [
           'npx',
@@ -165,6 +179,14 @@ class SyncCommand extends SkillsSyncCommand {
           if (path == null) '--global',
           '-y',
         ];
+
+        if (dryRun) {
+          final dirInfo = workingDirectory != null ? ' (in $path)' : '';
+          logger.info('${command.join(' ')}$dirInfo');
+          continue;
+        }
+
+        final progress = logger.progress('Removing skills for $targetName...');
 
         final result = await Process.run(
           command.first,
@@ -183,6 +205,8 @@ class SyncCommand extends SkillsSyncCommand {
         }
       }
       logger.success('Existing skills removed.\n');
+    } else if (!dryRun && !clean) {
+      logger.info('=== Updating skills (clean mode disabled) ===');
     }
 
     // --- Resolve Patterns ---
@@ -390,9 +414,9 @@ class SyncCommand extends SkillsSyncCommand {
           // Calculate hashes using Git
           final skillHashes = <String, String>{};
           for (final skill in extractedSkills) {
-            final skillPath = entry.targetPath == null
+            final skillPath = path == null
                 ? expandPath('~/.agents/skills/$skill')
-                : '${expandPath(entry.targetPath!)}/.agents/skills/$skill';
+                : '${expandPath(path)}/.agents/skills/$skill';
 
             final skillDir = Directory(skillPath);
             if (skillDir.existsSync()) {
@@ -541,11 +565,11 @@ class SyncCommand extends SkillsSyncCommand {
         final targetName = path ?? 'global';
         logger.info('📍 $targetName:');
 
+        final skillsPerSource = <String, List<String>>{};
         final lockfilePath = path == null
             ? expandPath('~/.agents/.skill-lock.json')
             : '${expandPath(path)}/skills-lock.json';
         final lockfile = File(lockfilePath);
-        final skillsPerSource = <String, List<String>>{};
 
         if (lockfile.existsSync()) {
           try {

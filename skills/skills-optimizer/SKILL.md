@@ -61,6 +61,9 @@ Once the user provides their preference:
 2. Maintain the original structure of YAML comments and formatting.
 3. **Ask for permission to apply changes**: DO NOT run `skills_sync sync` automatically. Instead, ask the user if they would like to apply the configuration changes now.
 4. Execute `skills_sync sync` only after receiving explicit confirmation.
+
+- **[TIP]** Use `skills_sync sync --no-clean` for a faster synchronization when only adding new skills or updating existing ones.
+
 5. Confirm successful synchronization with the user.
 
 ## Best Practices

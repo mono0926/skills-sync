@@ -35,7 +35,8 @@ dart pub global activate skills_sync
 
 1.  **Initialize**: Run `skills_sync init` to generate the default global configuration at `~/.config/skills_sync/skills.yaml`.
 2.  **Configure**: Edit the configuration to add your favorite skill sources.
-3.  **Sync**: Run `skills_sync sync` in your project to install and update skills.
+3.  **Sync**: Run `skills_sync sync` in your project to thoroughly sync skills (deletes extra skills by default).
+4.  **Update**: Run `skills_sync update` for a quick version update of all installed skills.
 
 ---
 
@@ -61,15 +62,30 @@ Edit the global or project-local `skills.yaml` to specify which skills to sync. 
 ### 3. Synchronization
 
 > [!WARNING]
-> Running `sync` will **delete all existing skills** in the target directories before installing the ones defined in your configuration.
+> By default, `sync` will **delete all existing skills** in the target directories before installing the ones defined in your configuration to ensure a clean state.
 >
-> Use the `-y` or `--yes` flag to skip the confirmation prompt in non-interactive environments.
+> Use the `-y` or `--yes` flag to skip the confirmation prompt.
 
 Apply your configuration changes by running:
 
 ```bash
 skills_sync sync
 ```
+
+#### Options:
+
+- `--clean`: (Default: `true`) Delete existing skills before syncing. Use `--no-clean` to skip this step for a faster sync.
+- `--agent <name>`: Specify the target agent (default: `antigravity`). Use `*` to target all agents.
+
+### 4. Update
+
+For a faster update that only checks for the latest versions of your currently configured skills without reaching for a clean state, use the `update` command:
+
+```bash
+skills_sync update
+```
+
+This runs `npx skills update` across all configured global and local paths.
 
 ---
 
@@ -95,7 +111,8 @@ global:
 
 - `init`: Generates configuration files.
 - `config`: Opens configuration in your default editor.
-- `sync`: Installs and syncs skills.
+- `sync`: Thoroughly syncs skills (re-installs).
+- `update`: Quickly updates existing skills in-place.
 - `list`: Shows current configuration and installation status.
 
 ## Environment Requirements

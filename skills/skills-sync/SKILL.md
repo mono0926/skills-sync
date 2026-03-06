@@ -24,10 +24,23 @@ Here are the primary commands for `skills_sync`:
 
 ### `skills_sync sync`
 
-Synchronizes the skills based on the configuration file.
+Synchronizes the skills based on the configuration file. By default, it performs a "clean" sync by removing existing skills first.
 
-- **When to use**: Immediately after any modifications to `~/.config/skills_sync/skills.yaml` or when the user requests to update their skills.
+- **When to use**: Immediately after any modifications to `~/.config/skills_sync/skills.yaml` or when the user requests to thoroughly ensure their skills directory matches the config.
+- **Options**:
+  - `--clean`: (Default: `true`) Deletes existing skills before installation.
+  - `--no-clean`: Skips deletion. Faster, but might leave orphaned skills.
+  - `--agent <name>`: Target a specific agent (default: `antigravity`). Use `*` for all.
 - **Action**: It fetches repositories, applies includes/excludes, and ensures locally installed skills match the configuration.
+
+### `skills_sync update`
+
+Checks for and installs the latest versions of already configured skills without deleting anything first.
+
+- **When to use**: When you want a quick check for skill updates without the overhead of a full sync.
+- **Options**:
+  - `--agent <name>`: Target a specific agent (default: `antigravity`).
+- **Action**: Runs `npx skills update` across all configured target paths.
 
 ### `skills_sync list`
 
@@ -88,4 +101,4 @@ If you are modifying the user's `skills.yaml` (e.g., adding or removing skills):
 - **Transparency in Configuration**: Do not modify `skills.yaml` silently. Clearly explain which skills you are adding or removing and why, ensuring the user maintains full awareness of their installed skills at all times.
 - **Do not guess file paths**: Always rely on the `skills_sync` tool to handle the installation logic, cloning, and copying. Don't try to manually download zip files or clone repos with `git` to `~/.agents/skills` unless specifically requested to bypass the tool.
 - **Wait for completion**: `skills_sync sync` might take a moment if it needs to download large repositories. Allow the command to finish.
-- **Dry runs are not currently supported**: If you change the yaml and run sync, it will make destructive changes (deleting unlisted skills). Be sure of the user's intent before syncing after a configuration removal.
+- **Dry runs**: You can use `--dry-run` to see what commands `skills_sync` would execute without actually performing them.
