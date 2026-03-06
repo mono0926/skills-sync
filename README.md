@@ -64,14 +64,16 @@ skills_sync sync
 
 ## Configuration Example
 
+See [examples/mono/skills.yaml](https://github.com/mono0926/skills-sync/blob/main/examples/mono/skills.yaml) for a real-world example.
+
 ```yaml
 global:
-  mono0926/skills_sync: # Includes Skills Optimizer
+  mono0926/skills:
   anthropics/skills:
     - '*' # All skills
     - '!recipe-*' # Exclude skills starting with 'recipe-'
 
-./path/to/project:
+~/Git/my-project:
   mono0926/skills:
     - flutter-* # Only flutter-related skills
 ```
