@@ -88,7 +88,7 @@ skills_sync sync --config my-skills.yaml
 
 ```yaml
 global:
-  mono0926/skills-sync: [] # Skills Optimizer を含む
+  mono0926/skills-sync: # Skills Optimizer を含む
   anthropics/skills:
     - '*' # 全Skills
     - '!recipe-*' # recipeで始まるSkillsを除外

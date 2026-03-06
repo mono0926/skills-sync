@@ -40,7 +40,7 @@ class InitCommand extends SkillsSyncCommand {
 # global:
 #   # インストールしたSkillsを ~ / .agents / skills / 配下にグローバルに配置します。
 #   # スキーマ名: [Skills名1, Skills名2, ...]
-#   mono0926/script: [] # 全Skillsをインストール
+#   mono0926/script: # 全Skillsをインストール
 #
 # ~/Git/my-project:
 #   # 特定のディレクトリ配下にSkillsを配置する場合
@@ -51,7 +51,7 @@ class InitCommand extends SkillsSyncCommand {
 #     - "flutter-*" # flutter- で始まるSkillsをワイルドカード指定
 
 global:
-  mono0926/skills-sync: [] # Skills Optimizer を含む基本Skillsセット
+  mono0926/skills-sync: # Skills Optimizer を含む基本Skillsセット
 ''';
 
     configFile.writeAsStringSync(template);
