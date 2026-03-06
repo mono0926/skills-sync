@@ -279,7 +279,9 @@ class SyncCommand extends SkillsSyncCommand {
                 .transform(utf8.decoder)
                 .transform(const LineSplitter())
                 .listen((line) {
-                  if (line.trim().isEmpty) return;
+                  if (line.trim().isEmpty) {
+                    return;
+                  }
                   stdoutLines.add(line);
                   logger.detail('[$targetName] $line');
                 })
@@ -289,7 +291,9 @@ class SyncCommand extends SkillsSyncCommand {
                 .transform(utf8.decoder)
                 .transform(const LineSplitter())
                 .listen((line) {
-                  if (line.trim().isEmpty) return;
+                  if (line.trim().isEmpty) {
+                    return;
+                  }
                   stderrLines.add(line);
                   logger.warn('[$targetName:stderr] $line');
                 })
@@ -310,7 +314,8 @@ class SyncCommand extends SkillsSyncCommand {
         installProgress.complete('Installed skills from ${entry.source}.');
       } else {
         installProgress.fail(
-          'Failed to install skills from ${entry.source} (exit code: ${result.exitCode})',
+          'Failed to install skills from ${entry.source} '
+          '(exit code: ${result.exitCode})',
         );
         hasError = true;
       }

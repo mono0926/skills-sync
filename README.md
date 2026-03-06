@@ -10,6 +10,18 @@ A CLI tool to keep [AI Agent Skills](https://agentskills.io/home) (`SKILL.md`) i
 - 📦 **Batch Sync**: Install and sync multiple skills from various repositories or local folders.
 - ⚡ **Wildcard Support**: Use `*` for batch selection and `!` for exclusions in your configuration.
 - 🧐 **Optimization**: Save AI context window pressure by organizing skills and using security-audited skills.
+- 🤖 **AI-Ready**: Bundled with dedicated [AI Agent Skills](https://agentskills.io/home) to help the AI manage your configuration.
+
+---
+
+## Core Skills for AI Agents
+
+This repository includes dedicated skills to help AI agents manage your development environment:
+
+- **[skills-sync](file:///Users/mono/Git/skills-sync/skills/skills-sync/SKILL.md)**: Teaches the AI how to use this CLI tool correctly, ensuring it doesn't make accidental changes.
+- **[skills-optimizer](file:///Users/mono/Git/skills-sync/skills/skills-optimizer/SKILL.md)**: Enables the AI to analyze your tech stack and propose optimizations for your `skills.yaml`, including security audits of new skills.
+
+To use them, add `mono0926/skills-sync` to your `skills.yaml`.
 
 ---
 

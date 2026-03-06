@@ -56,8 +56,9 @@ Once the user provides their preference:
 
 1. Update `skills.yaml` based on the user's choices.
 2. Maintain the original structure of YAML comments and formatting.
-3. **Automatically apply changes:** Run `skills_sync sync` in the terminal to apply the configuration changes. You do not need the user to run it; do it for them.
-4. Confirm successful synchronization with the user.
+3. **Ask for permission to apply changes**: DO NOT run `skills_sync sync` automatically. Instead, ask the user if they would like to apply the configuration changes now.
+4. Execute `skills_sync sync` only after receiving explicit confirmation.
+5. Confirm successful synchronization with the user.
 
 ## Best Practices
 

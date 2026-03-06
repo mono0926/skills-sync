@@ -148,7 +148,9 @@ void main(List<String> args) async {
 
 String? _extractReleaseNotes(String changelog, String version) {
   final lines = changelog.split('\n');
-  final startIndex = lines.indexWhere((l) => l.startsWith('## $version'));
+  final startIndex = lines.indexWhere(
+    (l) => l.startsWith('## $version') || l.startsWith('## [$version]'),
+  );
   if (startIndex == -1) {
     return null;
   }
