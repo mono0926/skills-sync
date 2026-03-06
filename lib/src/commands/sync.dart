@@ -141,7 +141,8 @@ class SyncCommand extends SkillsSyncCommand {
       final targetDirs = validPaths.map((p) => p ?? 'global').join('\n  - ');
       logger
         ..warn(
-          '⚠️  WARNING: This command will DELETE all existing skills in the target directories before syncing.',
+          '⚠️  WARNING: This command will DELETE all existing skills in the '
+          'target directories before syncing.',
         )
         ..info('Target locations:\n  - $targetDirs\n');
 
@@ -440,7 +441,7 @@ class SyncCommand extends SkillsSyncCommand {
                     dotGit.deleteSync(recursive: true);
                   }
                 }
-              } catch (e) {
+              } on Exception catch (e) {
                 logger.detail('Failed to calculate hash for $skill: $e');
               }
             }
@@ -650,7 +651,8 @@ class SyncCommand extends SkillsSyncCommand {
                 }
               } else {
                 logger.info(
-                  '    🔄 Updated: $skill ($oldHash -> $newHash, $source) [Not Audited]',
+                  '    🔄 Updated: $skill ($oldHash -> $newHash, $source) '
+                  '[Not Audited]',
                 );
               }
             }

@@ -3,14 +3,15 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
-/// A utility to manage persistent audit results (summaries and security status).
+/// A utility to manage persistent audit results.
 class AuditCache {
   AuditCache._(this._file, this._data);
 
   final File _file;
   final Map<String, dynamic> _data;
 
-  /// Loads the audit cache from the default location (~/.config/skills_sync/audit-cache.json).
+  /// Loads the audit cache from the default location.
+  /// Location: ~/.config/skills_sync/audit-cache.json
   static Future<AuditCache> load() async {
     final home = Platform.environment['HOME'] ?? '';
     final file = File(
@@ -18,11 +19,11 @@ class AuditCache {
     );
 
     var data = <String, dynamic>{};
-    if (await file.exists()) {
+    if (file.existsSync()) {
       try {
         final content = await file.readAsString();
         data = jsonDecode(content) as Map<String, dynamic>;
-      } catch (_) {
+      } on Exception catch (_) {
         // Fallback to empty if corrupt
       }
     }
@@ -36,8 +37,8 @@ class AuditCache {
 
   /// Saves the audit cache to disk.
   Future<void> save() async {
-    if (!await _file.parent.exists()) {
-      await _file.parent.create(recursive: true);
+    if (!_file.parent.existsSync()) {
+      _file.parent.createSync(recursive: true);
     }
     const encoder = JsonEncoder.withIndent('  ');
     await _file.writeAsString(encoder.convert(_data));
@@ -57,7 +58,7 @@ class AuditCache {
     _data[hash] = {
       'summary': summary,
       'securityStatus': securityStatus,
-      'details': ?details,
+      'details': details,
       'updatedAt': DateTime.now().toIso8601String(),
     };
   }
