@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:skills_sync/src/audit_cache.dart';
 import 'package:skills_sync/src/command_base.dart';
 import 'package:skills_sync/src/logger.dart';
 import 'package:yaml/yaml.dart';
@@ -20,6 +21,11 @@ class SyncCommand extends SkillsSyncCommand {
         abbr: 'y',
         negatable: false,
         help: 'Skip confirmation prompt and proceed with syncing.',
+      )
+      ..addFlag(
+        'json',
+        negatable: false,
+        help: 'Output result in JSON format for AI parsing.',
       );
   }
 
@@ -50,6 +56,7 @@ class SyncCommand extends SkillsSyncCommand {
     final yamlString = await configFile.readAsString();
     final yaml = loadYaml(yamlString) as YamlMap;
     final entries = parseSkillEntries(yaml);
+    final auditCache = await AuditCache.load();
 
     if (dryRun) {
       logger.info(
@@ -134,7 +141,7 @@ class SyncCommand extends SkillsSyncCommand {
       logger.info('');
     }
 
-    final diffs = <String?, Map<String, Map<String, String>>>{};
+    final diffs = <String?, Map<String, dynamic>>{};
 
     if (!dryRun) {
       logger.info('=== Removing existing skills ===');
@@ -312,6 +319,22 @@ class SyncCommand extends SkillsSyncCommand {
 
       if (result.exitCode == 0) {
         installProgress.complete('Installed skills from ${entry.source}.');
+        // Update the entry with actually installed skills
+        final stdoutStr = result.stdout.toString();
+        final regex = RegExp(r'\.agents/skills/([\w\-]+)');
+        final matches = regex.allMatches(stdoutStr);
+        final installed = matches.map((m) => m.group(1)!).toList();
+
+        final updatedEntry = SkillEntry(
+          source: entry.source,
+          skills: entry.skills,
+          patterns: entry.patterns,
+          excludes: entry.excludes,
+          excludePatterns: entry.excludePatterns,
+          targetPath: entry.targetPath,
+          installedSkills: installed,
+        );
+        activeEntries[activeEntries.length - 1] = updatedEntry;
       } else {
         installProgress.fail(
           'Failed to install skills from ${entry.source} '
@@ -356,6 +379,41 @@ class SyncCommand extends SkillsSyncCommand {
           final matches = regex.allMatches(stdoutStr);
           var extractedSkills = matches.map((m) => m.group(1)!).toSet()
             ..addAll(entry.skills);
+
+          // Calculate hashes using Git
+          final skillHashes = <String, String>{};
+          for (final skill in extractedSkills) {
+            final skillPath = entry.targetPath == null
+                ? expandPath('~/.agents/skills/$skill')
+                : '${expandPath(entry.targetPath!)}/.agents/skills/$skill';
+
+            final skillDir = Directory(skillPath);
+            if (skillDir.existsSync()) {
+              try {
+                final gitInit = await Process.run('git', [
+                  'init',
+                ], workingDirectory: skillPath);
+                if (gitInit.exitCode == 0) {
+                  await Process.run('git', [
+                    'add',
+                    '.',
+                  ], workingDirectory: skillPath);
+                  final writeTree = await Process.run('git', [
+                    'write-tree',
+                  ], workingDirectory: skillPath);
+                  if (writeTree.exitCode == 0) {
+                    skillHashes[skill] = writeTree.stdout.toString().trim();
+                  }
+                  final dotGit = Directory('$skillPath/.git');
+                  if (dotGit.existsSync()) {
+                    dotGit.deleteSync(recursive: true);
+                  }
+                }
+              } catch (e) {
+                logger.detail('Failed to calculate hash for $skill: $e');
+              }
+            }
+          }
 
           if (entry.excludes.isNotEmpty || entry.excludePatterns.isNotEmpty) {
             final allExcludeRegExps = [
@@ -403,25 +461,40 @@ class SyncCommand extends SkillsSyncCommand {
 
           for (final skill in extractedSkills) {
             final existing = allPossible[skill] as Map<String, dynamic>?;
+            final hash = skillHashes[skill];
             mergedSkills[skill] = <String, dynamic>{
               if (existing != null) ...existing,
               'source': entry.source,
+              'skillFolderHash': ?hash,
             };
           }
         }
 
         final addedSkills = <String, String>{};
         final removedSkills = <String, String>{};
+        final updatedSkills = <String, Map<String, String>>{};
 
         final beforeSkills = before['skills'] as Map<String, dynamic>? ?? {};
 
         for (final skill in mergedSkills.keys) {
-          final afterSource =
-              (mergedSkills[skill] as Map<String, dynamic>)['source']
-                  as String? ??
-              'unknown';
+          final afterData = mergedSkills[skill] as Map<String, dynamic>;
+          final afterSource = afterData['source'] as String? ?? 'unknown';
+          final afterHash = afterData['skillFolderHash'] as String?;
+
           if (!beforeSkills.containsKey(skill)) {
             addedSkills[skill] = afterSource;
+          } else {
+            final beforeData = beforeSkills[skill] as Map<String, dynamic>;
+            final beforeHash = beforeData['skillFolderHash'] as String?;
+            if (beforeHash != null &&
+                afterHash != null &&
+                beforeHash != afterHash) {
+              updatedSkills[skill] = {
+                'source': afterSource,
+                'oldHash': beforeHash,
+                'newHash': afterHash,
+              };
+            }
           }
         }
         for (final skill in beforeSkills.keys) {
@@ -433,7 +506,11 @@ class SyncCommand extends SkillsSyncCommand {
           }
         }
 
-        diffs[path] = {'added': addedSkills, 'removed': removedSkills};
+        diffs[path] = {
+          'added': addedSkills,
+          'removed': removedSkills,
+          'updated': updatedSkills,
+        };
 
         final finalLock = <String, dynamic>{
           'version': before['version'] ?? 3,
@@ -495,15 +572,56 @@ class SyncCommand extends SkillsSyncCommand {
         }
 
         final pathDiff = diffs[path] ?? {};
-        final added = pathDiff['added'] ?? {};
-        final removed = pathDiff['removed'] ?? {};
+        final added = (pathDiff['added'] as Map?)?.cast<String, String>() ?? {};
+        final removed =
+            (pathDiff['removed'] as Map?)?.cast<String, String>() ?? {};
+        final updated =
+            (pathDiff['updated'] as Map?)
+                ?.cast<String, Map<String, String>>() ??
+            {};
 
-        if (added.isNotEmpty || removed.isNotEmpty) {
+        if (added.isNotEmpty || removed.isNotEmpty || updated.isNotEmpty) {
           logger.info('\n    [Changes from previous sync]');
           if (added.isNotEmpty) {
             final sortedAdded = added.keys.toList()..sort();
             for (final skill in sortedAdded) {
               logger.info('    ✨ Added: $skill (${added[skill]})');
+            }
+          }
+          if (updated.isNotEmpty) {
+            final sortedUpdated = updated.keys.toList()..sort();
+            for (final skill in sortedUpdated) {
+              final data = updated[skill]!;
+              final oldHash = data['oldHash']?.substring(0, 7);
+              final newHash = data['newHash']?.substring(0, 7);
+              final source = data['source'];
+              final fullHash = data['newHash'];
+              final audit = fullHash != null
+                  ? auditCache.getAudit(fullHash)
+                  : null;
+
+              if (audit != null) {
+                final status = audit['securityStatus'] as String? ?? 'unknown';
+                final summary = audit['summary'] as String? ?? '';
+                final icon = status == 'safe'
+                    ? '✅'
+                    : status == 'caution'
+                    ? '⚠️'
+                    : '🚨';
+                logger.info(
+                  '    🔄 Updated: $skill ($oldHash -> $newHash, $source)\n'
+                  '       $icon Audit: $status\n'
+                  '       📝 Summary: $summary',
+                );
+                final details = audit['details'] as String?;
+                if (details != null && details.isNotEmpty) {
+                  logger.info('       🔒 Details: $details');
+                }
+              } else {
+                logger.info(
+                  '    🔄 Updated: $skill ($oldHash -> $newHash, $source) [Not Audited]',
+                );
+              }
             }
           }
           if (removed.isNotEmpty) {

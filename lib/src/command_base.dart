@@ -157,6 +157,7 @@ class SkillEntry {
     this.excludes = const [],
     this.excludePatterns = const [],
     this.targetPath,
+    this.installedSkills = const [],
   });
 
   final String source;
@@ -165,4 +166,5 @@ class SkillEntry {
   final List<String> excludes;
   final List<String> excludePatterns;
   final String? targetPath;
+  final List<String> installedSkills;
 }
