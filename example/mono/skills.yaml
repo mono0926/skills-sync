@@ -16,7 +16,7 @@ global:
   # openclaw/openclaw:
 
   # 個別インストールの場合はリストを書く
-  https://github.com/flutter/skills/tree/generate-skills:
+  flutter/skills:
     - '*'
     - '!flutter-architecture' # 既存アーキテクチャに特化するため
     - '!flutter-state-management' # 既存アーキテクチャに特化するため
@@ -56,6 +56,9 @@ global:
   madteacher/mad-agents-skills:
     - '*'
     - '!flutter-navigation' # flutter-routing-and-navigation を優先するため
+
+  jimliu/baoyu-skills:
+    - release-skills
 
   # 重複気味
   # jeffallan/claude-skills:
