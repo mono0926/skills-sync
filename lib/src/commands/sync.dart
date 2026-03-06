@@ -26,6 +26,12 @@ class SyncCommand extends SkillsSyncCommand {
         'json',
         negatable: false,
         help: 'Output result in JSON format for AI parsing.',
+      )
+      ..addOption(
+        'agent',
+        abbr: 'a',
+        help: 'Specify the agent name to install skills for.',
+        defaultsTo: 'antigravity',
       );
   }
 
@@ -46,6 +52,7 @@ class SyncCommand extends SkillsSyncCommand {
 
     final dryRun = argResults?['dry-run'] as bool? ?? false;
     final configPath = argResults?['config'] as String?;
+    final agent = argResults?['agent'] as String? ?? 'antigravity';
     final configFile = findConfigFile(configPath);
 
     if (configFile == null) {
@@ -154,7 +161,7 @@ class SyncCommand extends SkillsSyncCommand {
           'npx',
           'skills',
           'remove',
-          '--all',
+          if (agent == '*') '--all' else ...['--agent', agent, '--skill', '*'],
           if (path == null) '--global',
           '-y',
         ];
@@ -259,7 +266,7 @@ class SyncCommand extends SkillsSyncCommand {
       final workingDirectory = entry.targetPath != null
           ? expandPath(entry.targetPath!)
           : null;
-      final command = _buildCommand(entry);
+      final command = _buildCommand(entry, agent: agent);
       final targetName = entry.targetPath ?? 'global';
 
       if (dryRun) {
@@ -650,7 +657,7 @@ class SyncCommand extends SkillsSyncCommand {
     return hasError ? 1 : 0;
   }
 
-  List<String> _buildCommand(SkillEntry entry) {
+  List<String> _buildCommand(SkillEntry entry, {required String agent}) {
     return [
       'npx',
       'skills',
@@ -658,7 +665,7 @@ class SyncCommand extends SkillsSyncCommand {
       entry.source,
       if (entry.targetPath == null) '--global',
       '--agent',
-      'antigravity',
+      agent,
       '-y',
       if (entry.skills.isNotEmpty) ...['--skill', ...entry.skills],
     ];
