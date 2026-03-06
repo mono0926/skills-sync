@@ -57,7 +57,7 @@ global:
     configFile.writeAsStringSync(template);
     logger
       ..success('設定ファイルを生成しました: ${configFile.path}')
-      ..info('\n次に `skills_sync sync` を実行してSkillsをインストールしてください。');
+      ..info('\n次に `skills-sync sync` を実行してSkillsをインストールしてください。');
 
     return 0;
   }

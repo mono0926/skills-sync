@@ -19,4 +19,5 @@ dev_dependencies:
   test: ^1.25.6
 
 executables:
+  skills-sync: skills_sync
   skills_sync:

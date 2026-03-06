@@ -73,7 +73,7 @@ abstract class SkillsSyncCommand extends Command<int> {
         continue;
       }
 
-      final source = key;
+      final source = expandPath(key);
       final skills = <String>[];
       final patterns = <String>[];
       final excludes = <String>[];
