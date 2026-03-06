@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:mason_logger/mason_logger.dart';
 import 'package:yaml/yaml.dart';
 
 void main(List<String> args) async {
+  final logger = Logger();
   final parser = ArgParser()
     ..addFlag('major', negatable: false, help: 'Bump the major version')
     ..addFlag('minor', negatable: false, help: 'Bump the minor version')
@@ -20,119 +22,92 @@ void main(List<String> args) async {
     )
     ..addFlag('help', abbr: 'h', negatable: false, help: 'Show this help');
 
-  final results = parser.parse(args);
+  final ArgResults results;
+  try {
+    results = parser.parse(args);
+  } catch (e) {
+    logger.err(e.toString());
+    print(parser.usage);
+    exit(64);
+  }
 
   if (results['help'] as bool) {
-    print('Usage: dart run scripts/release.dart [options]');
-    print(parser.usage);
+    logger.info('Usage: dart run scripts/release.dart [options]');
+    logger.info(parser.usage);
     return;
   }
 
   final isDryRun = results['dry-run'] as bool;
   final bumpMajor = results['major'] as bool;
   final bumpMinor = results['minor'] as bool;
-  // If major or minor is specified, don't use the patch default unless explicitly specified.
-  final bumpPatch = results['patch'] as bool && !bumpMajor && !bumpMinor;
+  final bumpType = bumpMajor ? 'major' : (bumpMinor ? 'minor' : 'patch');
 
-  // Read current version from pubspec.yaml
-  final pubspecFile = File('pubspec.yaml');
-  if (!pubspecFile.existsSync()) {
-    print('Error: pubspec.yaml not found.');
-    exit(1);
-  }
+  // 1. Get current version
+  final pubspecYaml =
+      loadYaml(File('pubspec.yaml').readAsStringSync()) as YamlMap;
+  final currentVersion = pubspecYaml['version'] as String;
 
-  final pubspecContent = await pubspecFile.readAsString();
-  final pubspecYaml = loadYaml(pubspecContent) as YamlMap;
-  final currentVersionStr = pubspecYaml['version'] as String;
-
-  final parts = currentVersionStr.split('.').map(int.parse).toList();
-  var (major, minor, patch) = (parts[0], parts[1], parts[2]);
-
-  if (bumpMajor) {
-    major++;
-    minor = 0;
-    patch = 0;
-  } else if (bumpMinor) {
-    minor++;
-    patch = 0;
-  } else if (bumpPatch || results['patch'] as bool) {
-    patch++;
-  }
-
-  final nextVersion = '$major.$minor.$patch';
-  final nextTag = 'v$nextVersion';
-
-  print('Current version: $currentVersionStr');
-  print('Next version:    $nextVersion');
-  print('Next tag:        $nextTag');
+  logger.info('Current version: ${lightCyan.wrap(currentVersion)}');
+  logger.info('Bumping type:    ${lightYellow.wrap(bumpType)}');
 
   if (isDryRun) {
-    print('\n--- DRY RUN ---');
-    print('Would update pubspec.yaml to version: $nextVersion');
-    print('Would prepend version header to CHANGELOG.md');
-    print('Would run: git add pubspec.yaml CHANGELOG.md');
-    print('Would run: git commit -m "chore: bump version to $nextVersion"');
-    print('Would run: git tag $nextTag');
-    print('Would ask for confirmation before: git push origin main $nextTag');
+    logger.info('\n--- DRY RUN ---');
+    logger.info('Would run: dart run cider bump $bumpType');
+    logger.info('Would run: dart run cider release');
+    logger.info('Would commit, tag and push.');
     return;
   }
 
   // Confirm
-  stdout.write('\nProceed with these changes? (y/N): ');
-  final response = stdin.readLineSync()?.toLowerCase();
-  if (response != 'y') {
-    print('Aborted.');
+  final proceed = logger.confirm('\nProceed with release?');
+  if (!proceed) {
+    logger.info('Aborted.');
     return;
   }
 
-  // 1. Update pubspec.yaml
-  final newPubspecContent = pubspecContent.replaceFirst(
-    RegExp(r'version: \d+\.\d+\.\d+'),
-    'version: $nextVersion',
-  );
-  await pubspecFile.writeAsString(newPubspecContent);
+  // 2. Bump version using cider
+  logger.info('Bumping version...');
+  await _run('dart', ['run', 'cider', 'bump', bumpType], logger);
 
-  // 2. Update CHANGELOG.md
-  final changelogFile = File('CHANGELOG.md');
-  if (await changelogFile.exists()) {
-    final changelogContent = await changelogFile.readAsString();
-    final newChangelogContent =
-        '## $nextVersion\n\n- (Add changes here)\n\n$changelogContent';
-    await changelogFile.writeAsString(newChangelogContent);
-    print('Updated CHANGELOG.md. Please edit it before pushing.');
-  }
+  // 3. Release using cider (updates CHANGELOG.md)
+  logger.info('Updating CHANGELOG.md...');
+  await _run('dart', ['run', 'cider', 'release'], logger);
 
-  // 3. Git commands
-  await _run('git', ['add', 'pubspec.yaml', 'CHANGELOG.md']);
+  // 4. Get new version
+  final newPubspecYaml =
+      loadYaml(File('pubspec.yaml').readAsStringSync()) as YamlMap;
+  final nextVersion = newPubspecYaml['version'] as String;
+  final nextTag = 'v$nextVersion';
 
-  print('\nChanges committed locally. Please review CHANGELOG.md.');
-  stdout.write('Ready to commit and tag? (y/N): ');
-  if (stdin.readLineSync()?.toLowerCase() != 'y') {
-    print('Stopped before commit. Please finish manually.');
-    return;
-  }
+  logger.info('Next version: ${lightGreen.wrap(nextVersion)}');
 
-  await _run('git', ['commit', '-m', 'chore: bump version to $nextVersion']);
-  await _run('git', ['tag', nextTag]);
+  // 5. Git actions
+  await _run('git', ['add', 'pubspec.yaml', 'CHANGELOG.md'], logger);
 
-  // 4. Final Push Confirmation
-  print('\nVersion $nextVersion is ready to be pushed.');
-  stdout.write('Push commit and tag to origin? (y/N): ');
-  if (stdin.readLineSync()?.toLowerCase() == 'y') {
-    await _run('git', ['push', 'origin', 'main', nextTag]);
-    print('\nSuccessfully released $nextVersion! 🚀');
+  final commit = logger.confirm('Commit and tag $nextTag?');
+  if (commit) {
+    await _run('git', [
+      'commit',
+      '-m',
+      'chore: bump version to $nextVersion',
+    ], logger);
+    await _run('git', ['tag', nextTag], logger);
+
+    final push = logger.confirm('Push to origin?');
+    if (push) {
+      await _run('git', ['push', 'origin', 'main', nextTag], logger);
+      logger.success('Successfully released $nextVersion! 🚀');
+    }
   } else {
-    print(
-      '\nPush aborted. You can push manually with: git push origin main $nextTag',
-    );
+    logger.info('Commit aborted. Please handle git commands manually.');
   }
 }
 
-Future<void> _run(String command, List<String> args) async {
-  print('Running: $command ${args.join(' ')}');
+Future<void> _run(String command, List<String> args, Logger logger) async {
   final result = await Process.run(command, args);
   if (result.exitCode != 0) {
-    print('Error: ${result.stderr}');
+    logger.err('Error running $command ${args.join(' ')}:');
+    logger.err(result.stderr);
     exit(result.exitCode);
   }
 }

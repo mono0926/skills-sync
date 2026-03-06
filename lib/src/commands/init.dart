@@ -4,7 +4,10 @@ import 'package:path/path.dart' as p;
 import 'package:skills_sync/src/command_base.dart';
 import 'package:skills_sync/src/logger.dart';
 
+/// The command that initializes the skills_sync configuration.
 class InitCommand extends SkillsSyncCommand {
+  /// Initializes a new instance of the [InitCommand].
+  InitCommand();
   @override
   String get description =>
       'デフォルト設定ファイル (~/.config/skills_sync/config.yaml) を生成します。';

@@ -5,6 +5,7 @@ import 'package:skills_sync/src/command_base.dart';
 import 'package:skills_sync/src/logger.dart';
 import 'package:yaml/yaml.dart';
 
+/// The command that lists the current configuration and its status.
 class ListCommand extends SkillsSyncCommand {
   @override
   String get description => '現在の設定とインストール済みのSkillsを一覧表示します。';

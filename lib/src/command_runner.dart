@@ -7,7 +7,9 @@ import 'package:skills_sync/src/commands/sync.dart';
 import 'package:skills_sync/src/exceptions.dart';
 import 'package:skills_sync/src/logger.dart';
 
+/// The command runner for the skills_sync CLI tool.
 class SkillsSyncCommandRunner extends CompletionCommandRunner<int> {
+  /// Initializes the runner with all available commands.
   SkillsSyncCommandRunner()
     : super('skills_sync', 'AI Agent Skillsを過不足なく同期するCLIツール') {
     addCommand(SyncCommand());

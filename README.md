@@ -1,118 +1,111 @@
 # skills_sync 🚀
 
-[AI Agent Skills](https://agentskills.io/home) を過不足なく一括同期するためのDart CLIツールです。
+[![pub package](https://img.shields.io/pub/v/skills_sync.svg)](https://pub.dev/packages/skills_sync)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 特徴
+A CLI tool to keep [AI Agent Skills](https://agentskills.io/home) (`SKILL.md`) in sync across your projects based on a central `skills.yaml` configuration file.
 
-- **Skillsの簡単インストール**: `skills.yaml` に記述されたSkills定義に従って、過不足なく一括でインストール・同期します。
-- **ワイルドカード/除外サポート**: Skills名にワイルドカード（`*`）や除外（`!`）を使用して、柔軟に構成を管理できます。
-- **並列インストール**: 複数のリポジトリからのSkillsインストールを並列で実行し、高速にセットアップを完了します。
-- **Skills Optimizer による継続的な最適化**: `skills.yaml` に `mono0926/skills_sync` を追加することで、専用の Skills が利用可能になります。
-  - **メリット**:
-    - 💡 **コンテキストの節約**: 不要な Skills を整理し、AI が本来の作業に集中できる環境を作ります。
-    - 🛡️ **セキュリティ監査**: 新しく追加する Skills を AI が事前に読み取って安全性を確認します。
-    - 🚀 **スタック最適化**: ユーザーの技術スタックに合わせた最適な Skills を AI が自ら提案します。
+## Key Features
 
-## インストール
+- 📦 **Batch Sync**: Install and sync multiple skills from various repositories or local folders.
+- ⚡ **Wildcard Support**: Use `*` for batch selection and `!` for exclusions in your configuration.
+- 🧐 **Optimization**: Save AI context window pressure by organizing skills and using security-audited skills.
 
-Dart SDKがインストールされている環境で、以下のコマンドを実行してください。
+---
+
+## Installation
 
 ```bash
 dart pub global activate skills_sync
 ```
 
-## 使い方
+## Quick Start
 
-### 2. 初期セットアップ
+1. **Initialize**: Run `skills_sync init` to generate a default `skills.yaml`.
+2. **Configure**: Edit `skills.yaml` to add your favorite skill sources.
+3. **Sync**: Run `skills_sync sync` to install and update skills in your project.
 
-プロジェクトのルートディレクトリで実行します：
+---
+
+## 日本語 (Japanese)
+
+AI Agent Skills (SKILL.md) を、`skills.yaml` 設定ファイルに基づいて一括同期・管理する CLI ツールです。
+
+### 特徴
+
+- 📦 **一括同期**: 複数のリポジトリやローカルフォルダから、必要な Skill だけをまとめてプロジェクトに導入。
+- ⚡ **Wildcard 対応**: `*` を使った一括指定や、`!` による除外設定が可能。
+- 🧐 **最適化**: AI のコンテキスト節約、セキュリティ監査済みの Skill 利用など、開発体験を向上。
+
+### 使い方
+
+1. **初期設定**: `skills_sync init`
+2. **同期**: `skills_sync sync`
+3. **一覧表示**: `skills_sync list`
+
+詳しい設定方法は [README.md](README.md) (このファイル) の各セクションを参照してください。
+
+---
+
+## Detailed Usage
+
+### 1. Initialization
+
+Run this in your project root:
 
 ```bash
 skills_sync init
 ```
 
-これにより、`~/.config/skills_sync/config.yaml`（初回のみ）と、プロジェクトごとの `skills.yaml` が生成されます。デフォルトで `skills-optimizer` を含む `mono0926/skills_sync` リポジトリが設定に含まれます。
+This generates `~/.config/skills_sync/config.yaml` (first time only) and a project-specific `skills.yaml`.
 
-### 3. 同期
+### 2. Synchronization
 
-`skills.yaml` に基づいて Skills を同期します：
+Sync your skills based on `skills.yaml`:
 
 ```bash
 skills_sync sync
 ```
 
-### 4. Skills Optimizer の活用
+---
 
-同期完了後、AI アシスタントに対して以下のように依頼してください：
-
-「Skillsを最適化して」
-「新しい技術スタックに合わせたSkillsを提案して」
-
-AI が `skills.yaml` の内容を分析し、最適な設定への更新をサポートします。自分で `skills.yaml` に追記する場合は以下のように記述します。
+## Configuration Example
 
 ```yaml
 global:
-  mono0926/skills_sync: # 全Skills（Skills Optimizerを含む）をインストール
-  ~/Git/skills_sync/skills/skills-optimizer: # ローカルパス指定の例
-```
-
-> [!NOTE]
->
-> - 値を空（`:` の後に何も書かない）にするか空リスト `[]` を指定すると、そのリポジトリに含まれるすべての Skills をインストールします。
-> - **ローカルパス指定**: 指定したフォルダ配下を再帰的に探索して `SKILL.md` を見つけ出します。リポジトリのルートフォルダを指定するだけで、配下の全 Skills を同期可能です。
-
-### サブコマンド一覧
-
-- `init`: `~/.config/skills_sync/config.yaml` を生成します。
-- `config`: 設定ファイルをエディタで開きます。
-- `sync`: 設定に基づいてSkillsを過不足なくインストール・同期します。
-- `list`: 現在の設定内容とインストール状況を表示します。
-
-### 環境要件
-
-- **Node.js**: `npx` コマンドを使用するため、Node.js がインストールされている必要があります。
-- **Git**: 外部リポジトリからSkillsを取得する場合に必要です。
-
-### 設定ファイルの場所
-
-デフォルトで以下の場所を探索します：
-
-- `~/.config/skills_sync/config.yaml`
-
-また、`-c` または `--config` オプションを使用して、明示的にパスを指定することも可能です。
-
-```bash
-skills_sync sync --config my-skills.yaml
-```
-
-### 設定ファイルの例
-
-リポジトリ内の [examples/mono/skills.yaml](https://github.com/mono0926/skills_sync/blob/main/examples/mono/skills.yaml) も参考にしてください。
-
-```yaml
-global:
-  mono0926/skills_sync: # Skills Optimizer を含む
+  mono0926/skills_sync: # Includes Skills Optimizer
   anthropics/skills:
-    - '*' # 全Skills
-    - '!recipe-*' # recipeで始まるSkillsを除外
+    - '*' # All skills
+    - '!recipe-*' # Exclude skills starting with 'recipe-'
 
 ./path/to/project:
   mono0926/skills:
-    - flutter-* # flutter関連のSkillsのみ
+    - flutter-* # Only flutter-related skills
 ```
 
-## 開発者向け
+---
 
-### ローカルでの実行
+## Subcommands
 
-開発中に `dart run` で実行する場合：
+- `init`: Generates configuration files.
+- `config`: Opens configuration in your default editor.
+- `sync`: Installs and syncs skills.
+- `list`: Shows current configuration and installation status.
+
+## Environment Requirements
+
+- **Node.js**: Required for `npx` command.
+- **Git**: Required for fetching remote repositories.
+
+## Developer Note
+
+To run locally for development:
 
 ```bash
+dart pub get
 dart run skills_sync sync
 ```
 
-一度 `dart pub global activate --source path .` を実行すれば、`skills_sync` コマンドとして直接実行できるようになります。
-
-## ライセンス
+## License
 
 MIT

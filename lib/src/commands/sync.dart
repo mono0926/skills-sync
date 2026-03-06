@@ -5,6 +5,7 @@ import 'package:skills_sync/src/command_base.dart';
 import 'package:skills_sync/src/logger.dart';
 import 'package:yaml/yaml.dart';
 
+/// The command that synchronizes skills based on the configuration file.
 class SyncCommand extends SkillsSyncCommand {
   SyncCommand() {
     argParser.addFlag(

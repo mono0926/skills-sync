@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:skills_sync/src/command_base.dart';
 import 'package:skills_sync/src/logger.dart';
 
+/// The command that opens the configuration file in the default editor.
 class ConfigCommand extends SkillsSyncCommand {
   @override
   String get description => '設定ファイルをエディタで開きます。';

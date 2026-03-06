@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:mason_logger/mason_logger.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 
+/// Base class for all skills_sync commands.
 abstract class SkillsSyncCommand extends Command<int> {
   SkillsSyncCommand() {
     argParser.addOption(
@@ -12,6 +14,9 @@ abstract class SkillsSyncCommand extends Command<int> {
       help: 'skills.yaml のパスを指定します',
     );
   }
+
+  /// The logger instance for commands.
+  late final Logger logger;
 
   Future<bool> checkNpx() async {
     try {
