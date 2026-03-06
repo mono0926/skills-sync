@@ -11,20 +11,12 @@ class SyncCommand extends SkillsSyncCommand {
     argParser.addFlag(
       'dry-run',
       negatable: false,
-      help: 'コマンド確認のみ行います',
+      help: 'Only show what would be done without making any changes.',
     );
   }
 
   @override
-  String get description => '''
-skills.yaml を読み込み、各Skillsをインストールします。
-
-Skillsの指定方法:
-  - 全インストール: スキーマ名の後に何も書かない、あるいは空リスト `[]` 指定します。
-  - 個別指定: インストールしたいSkills名をリストで記述します。
-  - ワイルドカード指定: `*` を含むパターンを記述すると、合致する全Skillsを対象にします (例: `*calendar*`)。
-  - 除外指定: `!` プレフィックスを使用すると、そのパターンに合致するSkillsを除外します (例: `!recipe-*`)。
-''';
+  String get description => 'Syncs skills based on the configuration file.';
 
   @override
   String get name => 'sync';
@@ -33,8 +25,8 @@ Skillsの指定方法:
   Future<int> run() async {
     if (!await checkNpx()) {
       logger
-        ..err('npx コマンドが見つかりません。')
-        ..info('\nNode.js と npm をインストールしてください: https://nodejs.org/');
+        ..err('npx command not found.')
+        ..info('\nPlease install Node.js and npm: https://nodejs.org/');
       return 1;
     }
 
@@ -43,12 +35,7 @@ Skillsの指定方法:
     final configFile = findConfigFile(configPath);
 
     if (configFile == null) {
-      logger
-        ..err('設定ファイルが見つかりませんでした。')
-        ..info('\nデフォルトの場所 (~/.config/skills_sync/config.yaml) に配置するか、')
-        ..info(
-          '`skills_sync init` で生成してください。または --config オプションでパスを指定してください。',
-        );
+      logger.err('Configuration file not found.');
       return 1;
     }
 
@@ -57,12 +44,14 @@ Skillsの指定方法:
     final entries = parseSkillEntries(yaml);
 
     if (dryRun) {
-      logger.info('=== Dry Run: 以下のコマンドを実行します ===\n');
+      logger.info(
+        '=== Dry Run: The following commands would be executed ===\n',
+      );
     }
 
     var hasError = false;
     final skippedPaths = <String>[];
-    final validPaths = <String?>{null}; // null は global を表す
+    final validPaths = <String?>{null}; // null represents global
 
     for (final entry in entries) {
       if (entry.targetPath != null) {
@@ -77,7 +66,7 @@ Skillsの指定方法:
       }
     }
 
-    // --- Before Lock ---
+    // --- Helper Functions ---
     Map<String, dynamic> readLock(String? path) {
       final lockPath = path == null
           ? expandPath('~/.agents/.skill-lock.json')
@@ -112,6 +101,7 @@ Skillsの指定方法:
       file.writeAsStringSync(const JsonEncoder.withIndent('  ').convert(data));
     }
 
+    // --- Before State ---
     final beforeLocks = <String?, Map<String, dynamic>>{};
     for (final path in validPaths) {
       beforeLocks[path] = readLock(path);
@@ -120,11 +110,11 @@ Skillsの指定方法:
     final diffs = <String?, Map<String, Map<String, String>>>{};
 
     if (!dryRun) {
-      logger.info('=== 既存のSkillsを削除しています ===');
+      logger.info('=== Removing existing skills ===');
       for (final path in validPaths) {
         final workingDirectory = path != null ? expandPath(path) : null;
         final targetName = path ?? 'global';
-        final progress = logger.progress('🗑️  $targetName のSkillsを削除中...');
+        final progress = logger.progress('Removing skills for $targetName...');
 
         final command = [
           'npx',
@@ -143,13 +133,15 @@ Skillsの指定方法:
         );
 
         if (result.exitCode == 0) {
-          progress.complete('🗑️  $targetName のSkillsを削除しました');
+          progress.complete('Removed skills for $targetName.');
         } else {
-          progress.fail('🗑️  $targetName のSkills削除に失敗しました\n${result.stderr}');
+          progress.fail(
+            'Failed to remove skills for $targetName:\n${result.stderr}',
+          );
           hasError = true;
         }
       }
-      logger.success('既存のSkills削除完了\n');
+      logger.success('Existing skills removed.\n');
     }
 
     // --- Resolve Patterns ---
@@ -162,7 +154,7 @@ Skillsの指定方法:
 
       final targetName = entry.targetPath ?? 'global';
       final progress = logger.progress(
-        '🔍 $targetName の利用可能なSkillsを確認中 (${entry.source})...',
+        'Checking available skills for $targetName (${entry.source})...',
       );
 
       final listResult = await Process.run('npx', [
@@ -173,7 +165,7 @@ Skillsの指定方法:
       ], runInShell: true);
 
       if (listResult.exitCode != 0) {
-        progress.fail('❌ Skillsリストの取得に失敗しました: ${entry.source}');
+        progress.fail('Failed to get skill list: ${entry.source}');
         resolvedEntries.add(entry);
         continue;
       }
@@ -199,14 +191,14 @@ Skillsの指定方法:
 
       if (matchedSkills.isEmpty) {
         progress.fail(
-          '⚠️  パターンに合致するSkillsが見つかりませんでした: ${entry.patterns.join(', ')}',
+          'No skills matched the patterns: ${entry.patterns.join(', ')}',
         );
         continue;
       }
 
       progress.complete(
-        '🔍 $targetName (${entry.source}) で '
-        '${matchedSkills.length} 個のSkillsが見つかりました',
+        'Found ${matchedSkills.length} skills for $targetName '
+        '(${entry.source}).',
       );
 
       resolvedEntries.add(
@@ -220,7 +212,9 @@ Skillsの指定方法:
       );
     }
 
-    final progress = dryRun ? null : logger.progress('インストールを実行中(並列)...');
+    final progress = dryRun
+        ? null
+        : logger.progress('Executing installation (parallel)...');
 
     // --- Parallel Install ---
     final activeEntries = <SkillEntry>[];
@@ -293,12 +287,12 @@ Skillsの指定方法:
           ),
         );
       }
+
       final afterLocks = <String?, Map<String, dynamic>>{};
       for (final path in validPaths) {
         afterLocks[path] = readLock(path);
       }
 
-      var hasError = false;
       for (final result in results) {
         final stdoutStr = result.stdout.toString();
         final stderrStr = result.stderr.toString();
@@ -309,7 +303,7 @@ Skillsの指定方法:
           logger.warn(stderrStr.trim());
         }
         if (result.exitCode != 0) {
-          logger.warn('⚠️  終了コード: ${result.exitCode}');
+          logger.warn('⚠️  Exit code: ${result.exitCode}');
           hasError = true;
         }
       }
@@ -428,17 +422,17 @@ Skillsの指定方法:
         };
         writeLock(path, finalLock);
       }
-      progress?.complete('インストール処理が完了しました');
+      progress?.complete('Installation process completed.');
 
       if (hasError) {
-        logger.warn('\n⚠️  一部のSkillsでエラーが発生しました');
+        logger.warn('\n⚠️  Errors occurred while syncing some skills.');
       } else {
-        logger.success('\n全てのSkillsをインストール/確認しました');
+        logger.success('\nAll skills have been successfully synced/verified.');
       }
     }
 
     if (!dryRun) {
-      logger.info('\n=== インストール結果一覧 ===');
+      logger.info('\n=== Installation Summary ===');
 
       for (final path in validPaths) {
         final targetName = path ?? 'global';
@@ -464,12 +458,12 @@ Skillsの指定方法:
               skillsPerSource.putIfAbsent(source, () => []).add(skillName);
             }
           } on FormatException catch (e) {
-            logger.warn('    ⚠️  ロックファイルのパースに失敗しました: $lockfilePath ($e)');
+            logger.warn('    ⚠️  Failed to parse lockfile: $lockfilePath ($e)');
           }
         }
 
         if (skillsPerSource.isEmpty) {
-          logger.info('  - (インストールされたSkillsはありません)');
+          logger.info('  - (No skills installed)');
         } else {
           final sources = skillsPerSource.keys.toList()..sort();
           for (final source in sources) {
@@ -486,29 +480,31 @@ Skillsの指定方法:
         final removed = pathDiff['removed'] ?? {};
 
         if (added.isNotEmpty || removed.isNotEmpty) {
-          logger.info('\n    [前回の状態からの変更点]');
+          logger.info('\n    [Changes from previous sync]');
           if (added.isNotEmpty) {
             final sortedAdded = added.keys.toList()..sort();
             for (final skill in sortedAdded) {
-              logger.info('    ✨ 追加: $skill (${added[skill]})');
+              logger.info('    ✨ Added: $skill (${added[skill]})');
             }
           }
           if (removed.isNotEmpty) {
             final sortedRemoved = removed.keys.toList()..sort();
             for (final skill in sortedRemoved) {
-              logger.info('    🗑️  削除: $skill (${removed[skill]})');
+              logger.info('    🗑️  Removed: $skill (${removed[skill]})');
             }
           }
         } else {
           logger
-            ..info('\n    [変更点]')
-            ..info('    🔄 すべての既存Skillsを最新状態に同期しました (差分なし)');
+            ..info('\n    [Changes]')
+            ..info('    🔄 All skills are up to date (no changes).');
         }
       }
     }
 
     if (skippedPaths.isNotEmpty) {
-      logger.info('\n⏭️  以下のパスは存在しなかったためスキップされました:');
+      logger.info(
+        '\n⏭️  The following paths were skipped as they do not exist:',
+      );
       for (final path in skippedPaths) {
         logger.info('  - $path');
       }

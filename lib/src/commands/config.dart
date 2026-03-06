@@ -6,7 +6,8 @@ import 'package:skills_sync/src/logger.dart';
 /// The command that opens the configuration file in the default editor.
 class ConfigCommand extends SkillsSyncCommand {
   @override
-  String get description => '設定ファイルをエディタで開きます。';
+  String get description =>
+      'Opens the skills.yaml configuration file in your default editor.';
 
   @override
   String get name => 'config';
@@ -16,28 +17,25 @@ class ConfigCommand extends SkillsSyncCommand {
     final configPath = argResults?['config'] as String?;
     final configFile = findConfigFile(configPath);
 
-    if (configFile == null || !configFile.existsSync()) {
-      logger.err('設定ファイルが見つかりません。先に `skills_sync init` を実行してください。');
+    if (configFile == null) {
+      logger.err('Configuration file not found.');
       return 1;
     }
 
-    final editor = Platform.environment['EDITOR'];
-    if (editor != null && editor.isNotEmpty) {
-      logger.info('エディタで開いています: $editor ${configFile.path}');
-      final process = await Process.start(editor, [
-        configFile.path,
-      ], runInShell: true);
-      final exitCode = await process.exitCode;
-      return exitCode;
+    final editor =
+        Platform.environment['EDITOR'] ??
+        (Platform.isWindows ? 'notepad' : 'vi');
+
+    logger.info('Opening ${configFile.path} with $editor...');
+
+    final result = await Process.run(editor, [
+      configFile.path,
+    ], runInShell: true);
+    if (result.exitCode != 0) {
+      logger.err('Failed to open editor: ${result.stderr}');
+      return result.exitCode;
     }
 
-    if (Platform.isMacOS) {
-      logger.info('システム標準のエディタで開いています: ${configFile.path}');
-      final process = await Process.run('open', [configFile.path]);
-      return process.exitCode;
-    }
-
-    logger.info('設定ファイルのパス: ${configFile.path}');
     return 0;
   }
 }

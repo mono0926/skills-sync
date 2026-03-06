@@ -11,7 +11,10 @@ void main() {
   group('SkillsSyncCommandRunner', () {
     test('has correct name and description', () {
       expect(runner.executableName, 'skills_sync');
-      expect(runner.description, 'AI Agent Skillsを過不足なく同期するCLIツール');
+      expect(
+        runner.description,
+        'A CLI tool to keep AI Agent Skills in sync.',
+      );
     });
 
     test('has all required commands registered', () {

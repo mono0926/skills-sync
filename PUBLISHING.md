@@ -1,58 +1,58 @@
-# 自動リリース手順 (GitHub Actions)
+# Automated Release Procedure (GitHub Actions)
 
-`skills_sync` の `pub.dev` へのリリースは、GitHub Actions を使用して自動化されています。
-OIDC (OpenID Connect) を利用しているため、パスワードや秘密鍵の管理は不要で安全です。
+Releasing `skills_sync` to `pub.dev` is automated using GitHub Actions.
+It uses OIDC (OpenID Connect), so password or secret key management is not required and it is secure.
 
-## 事前準備 (一回のみ)
+## Preparation (One-time only)
 
-自動リリースを有効にするには、以下の設定を `pub.dev` 上で行う必要があります。
+To enable automated publishing, you need to perform the following settings on `pub.dev`.
 
-1.  **[pub.dev/packages/skills_sync/admin](https://pub.dev/packages/skills_sync/admin)** にアクセスします。
-2.  **Automated publishing** セクションを探します。
-3.  **Enable publishing from GitHub Actions** をクリックします。
-4.  以下の値を入力して保存します。
+1.  Access **[pub.dev/packages/skills_sync/admin](https://pub.dev/packages/skills_sync/admin)**.
+2.  Find the **Automated publishing** section.
+3.  Click **Enable publishing from GitHub Actions**.
+4.  Enter the following values and save.
     - **Repository**: `mono0926/skills-sync`
     - **Tag pattern**: `v{{version}}`
 
-## リリースの流れ
+## Release Workflow
 
-新しいバージョンをリリースする手順は以下の通りです。
+Follow these steps to release a new version.
 
-### 1. リリーススクリプトの実行
+### 1. Run the Release Script
 
-プロジェクトのルートディレクトリで以下のコマンドを実行します。
+Run the following command in the project root directory.
 
 ```bash
-# パッチバージョン (0.0.x) を上げる場合 (デフォルト)
+# To bump the patch version (0.0.x) (default)
 dart run scripts/release.dart
 
-# マイナーバージョン (0.x.0) を上げる場合
+# To bump the minor version (0.x.0)
 dart run scripts/release.dart --minor
 
-# メジャーバージョン (x.0.0) を上げる場合
+# To bump the major version (x.0.0)
 dart run scripts/release.dart --major
 ```
 
-このスクリプトは以下の作業を自動で行います：
+This script automatically performs the following tasks:
 
-1.  `pubspec.yaml` のバージョン更新
-2.  `CHANGELOG.md` へのバージョンヘッダー挿入
-3.  Git のステージング、コミット、タグ付け (`vx.y.z`)
-4.  プッシュ前の最終確認
+1.  Updates the version in `pubspec.yaml`.
+2.  Inserts a version header into `CHANGELOG.md`.
+3.  Staging, committing, and tagging (`vx.y.z`) in Git.
+4.  Final confirmation before pushing.
 
-### 2. CHANGELOG.md の調整 (任意)
+### 2. Adjust CHANGELOG.md (Optional)
 
-スクリプトがコミットする前に一旦停止するので、そのタイミングで `CHANGELOG.md` に具体的な変更内容を記述することをお勧めします。
+The script pauses before committing, so we recommend writing specific changes in `CHANGELOG.md` at that time.
 
-### 3. プッシュと自動実行の確認
+### 3. Confirm Push and Automated Execution
 
-スクリプトの指示に従ってプッシュを承認（`y`）すると、GitHub Actions が起動し、自動的に `pub.dev` へアップロードされます。 ✨
+When you approve the push (`y`) as instructed by the script, GitHub Actions will trigger and automatically upload to `pub.dev`. ✨
 
-1.  GitHub の **Actions** タブを開きます。
-2.  **Publish to pub.dev** というワークフローが開始されていることを確認します。
-3.  完了すると、数分以内に `pub.dev` 上に新バージョンが反映されます。
+1.  Open the **Actions** tab on GitHub.
+2.  Verify that the workflow named **Publish to pub.dev** has started.
+3.  Once finished, the new version will be reflected on `pub.dev` within a few minutes.
 
 ---
 
 > [!TIP]
-> タグをプッシュする前に `dart pub publish --dry-run` をローカルで実行し、パッケージ内容に問題がないか最終確認することをお勧めします。✨
+> We recommend running `dart pub publish --dry-run` locally before pushing tags to final-check the package contents. ✨

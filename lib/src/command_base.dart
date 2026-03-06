@@ -11,7 +11,7 @@ abstract class SkillsSyncCommand extends Command<int> {
     argParser.addOption(
       'config',
       abbr: 'c',
-      help: 'skills.yaml のパスを指定します',
+      help: 'Path to skills.yaml configuration file',
     );
   }
 
@@ -33,15 +33,22 @@ abstract class SkillsSyncCommand extends Command<int> {
       return file.existsSync() ? file : null;
     }
 
+    // 1. Try ./skills.yaml (Project-specific)
+    final projectFile = File('skills.yaml');
+    if (projectFile.existsSync()) {
+      return projectFile;
+    }
+
+    // 2. Try ~/.config/skills_sync/skills.yaml (Global)
     final home = Platform.environment['HOME'] ?? '';
     if (home.isEmpty) {
       return null;
     }
 
-    final file = File(
-      p.join(home, '.config', 'skills_sync', 'config.yaml'),
+    final globalSkillsFile = File(
+      p.join(home, '.config', 'skills_sync', 'skills.yaml'),
     );
-    return file.existsSync() ? file : null;
+    return globalSkillsFile.existsSync() ? globalSkillsFile : null;
   }
 
   String expandPath(String path) {

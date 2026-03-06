@@ -8,7 +8,8 @@ import 'package:yaml/yaml.dart';
 /// The command that lists the current configuration and its status.
 class ListCommand extends SkillsSyncCommand {
   @override
-  String get description => '現在の設定とインストール済みのSkillsを一覧表示します。';
+  String get description =>
+      'Lists the current configuration and installed skills.';
 
   @override
   String get name => 'list';
@@ -17,8 +18,8 @@ class ListCommand extends SkillsSyncCommand {
   Future<int> run() async {
     if (!await checkNpx()) {
       logger
-        ..err('npx コマンドが見つかりません。')
-        ..info('\nNode.js と npm をインストールしてください: https://nodejs.org/');
+        ..err('npx command not found.')
+        ..info('\nPlease install Node.js and npm: https://nodejs.org/');
       return 1;
     }
 
@@ -26,11 +27,11 @@ class ListCommand extends SkillsSyncCommand {
     final configFile = findConfigFile(configPath);
 
     if (configFile == null) {
-      logger.err('設定ファイルが見つかりませんでした。');
+      logger.err('Configuration file not found.');
       return 1;
     }
 
-    logger.info('📖 設定ファイル: ${configFile.path}');
+    logger.info('📖 Configuration File: ${configFile.path}');
 
     final yamlString = await configFile.readAsString();
     final yaml = loadYaml(yamlString) as YamlMap;
@@ -46,7 +47,7 @@ class ListCommand extends SkillsSyncCommand {
       }
     }
 
-    logger.info('\n=== インストール状況 ===');
+    logger.info('\n=== Installation Status ===');
 
     for (final path in validPaths) {
       final targetName = path ?? 'global';
@@ -72,12 +73,12 @@ class ListCommand extends SkillsSyncCommand {
             skillsPerSource.putIfAbsent(source, () => []).add(skillName);
           }
         } on FormatException catch (e) {
-          logger.warn('    ⚠️  ロックファイルのパースに失敗しました: $lockfilePath ($e)');
+          logger.warn('    ⚠️  Failed to parse lockfile: $lockfilePath ($e)');
         }
       }
 
       if (skillsPerSource.isEmpty) {
-        logger.info('  - (インストールされたSkillsはありません)');
+        logger.info('  - (No skills installed)');
       } else {
         final sources = skillsPerSource.keys.toList()..sort();
         for (final source in sources) {

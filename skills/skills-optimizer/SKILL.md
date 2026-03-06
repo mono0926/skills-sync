@@ -1,63 +1,63 @@
 ---
 name: skills-optimizer
-description: ユーザーのskills.yaml設定を最適化し、プロファイルに合った最適なSkillsの提案や不要なSkillsの整理を行います。
+description: Optimizes the user's skills.yaml configuration, offering tailored skill suggestions and organizing redundant or out-of-stack skills.
 ---
 
-# Skills Optimizer (Skills最適化)
+# Skills Optimizer
 
-`config/skills.yaml` ファイルを最適化する専属Skillsです。不要なSkillsを整理し、ユーザーのプロファイルに合った高品質なSkillsを補填しつつ、クリーンで安全な環境を維持します。
+A dedicated skill for optimizing the `config/skills.yaml` file. It aims to streamline existing skills, suggest high-quality additions customized for the user's profile, and maintain a clean, secure environment.
 
-## コンテキスト: ユーザー設定の把握
+## Context: Understanding User Setup
 
-最適化を行う前に、ユーザーの**主要な技術スタック、好むアーキテクチャ（ライブラリなど）、開発スタイル**を把握する必要があります。
-事前に共有されているプロファイル情報や会話履歴からユーザーの特性を読み取ってください。
-**【重要】** もし理解が不足している（どんな技術をメインで使っているか不明な）場合は、最適化の提案を作る前に必ずユーザーに質問してください。
+Prior to proposing any optimizations, you must understand the user's **primary technical stack, preferred architectures (libraries, etc.), and overall development style**.
+Extract this context from provided profile information or conversation history.
+**[IMPORTANT]** If your understanding of the user's setup is insufficient (e.g., core technologies are unclear), you MUST ask the user for clarification before drafting optimization suggestions.
 
-- **共通の目標**: インストール済みSkillsが初期コンテキストに与える影響（汚染）は「名前と説明文」のみでわずかである点も加味しつつ、ユーザーの意向（発動時の有益性を優先するか、わずかなノイズも削るか）を含めてバランスの良い提案をすること。
+- **Objective**: Balance beneficial skill additions with context window efficiency. While the impact of installed skills on the initial context is minimal (mostly names and descriptions), respect the user's preference for either maximum utility or minimal noise.
 
-## ワークフロー
+## Workflow
 
-このSkillsが呼び出された際は、厳密に以下の手順に従ってください：
+Strictly follow these steps when this skill is invoked:
 
-### 1. 現状の分析
+### 1. Current State Analysis
 
-現在の `config/skills.yaml` を読み取ります。インストールされているリポジトリ、ワイルドカードインストール (`*`)、除外されているSkills (`!`) に注目してください。
+Read the current `config/skills.yaml`. Note the installed repositories, wildcard installations (`*`), and excluded skills (`!`).
 
-### 2. 足りない高品質Skillsの特定とセキュリティ監査
+### 2. Identifying High-Quality Skills & Security Audit
 
-ユーザーの技術スタック（例: Anthropic, Gemini, その他ユーザーが好んでいるフレームワークの公式リポジトリ等）に関連する最高品質のSkillsを考慮します。ユーザーのアーキテクチャやコード品質の方針に最も貢献できる追加Skillsに焦点を当ててください。
+Recommend top-tier skills related to the user's tech stack (e.g., official repositories for Frameworks, Cloud providers, and tools the user prefers). Focus on skills that significantly enhance code quality and architectural alignment.
 
-【重要：セキュリティと品質の事前監査】
-`npx skills` 自体は対象のリポジトリから構成ファイルをダウンロードするだけであり、中身の安全性や意図を深く検証する仕組みは持っていません。そのため、**提案する前に対象Skillsのリポジトリ内容（SKILL.md、および scripts/ 以下の実行ファイル等）をツールを使って実際に読みに行き、以下の点を入念に監査してください。**
+**[CRITICAL: Security and Quality Pre-Audit]**
+The `npx skills` tool essentially downloads configuration files from target repositories and lacks an inherent mechanism for deep security verification. Therefore, **before proposing new skills, you MUST research the target repository (reading SKILL.md and auditing files in scripts/, etc.) and verify the following:**
 
-- **安全性の確認**: 不正な外部通信（データ送出）、破壊的なコマンド実行（`rm -rf` 等の過剰な削除権限）、難読化された怪しいスクリプトが含まれていないか。
-- **品質の確認**: プロンプトの内容がユーザーの開発スタイル（モダン・高品質）と合致しているか。雑な命令やプロンプトインジェクションのリスクがないか。
-  ※ この監査なしに新しいSkillsをユーザーに提案してはいけません。
+- **Security Check**: Ensure there are no unauthorized network communications (data leakage), destructive commands (excessive deletion permissions like `rm -rf`), or suspicious obfuscated scripts.
+- **Quality Check**: Verify that the prompt instructions align with the user's high-quality, modern development standards. Assess risks of poor instructions or prompt injection flaws.
+  _Do not propose new skills to the user without completing this audit._
 
-### 3. 不要なSkillsのスクリーニングとユーザー確認
+### 3. Screening & User Verification
 
-理解したユーザーのコアスタックから外れるSkillsを探します。
+Identify skills that no longer fit the user's core tech stack.
 
-- **絶対に自動で削除しないでください**。
-- 明らかに重複している、または完全に無関係で有害な場合にのみ削除候補としてリストアップします（※「念のため入れておく」レベルのものは残して構いません）。
+- **NEVER delete skills automatically.**
+- List skills as candidates for removal only if they are clearly redundant, completely irrelevant, or potentially harmful. Items kept "just in case" are generally fine to remain.
 
-### 4. 最適化プランの提案
+### 4. Proposing the Optimization Plan
 
-分析・監査結果をユーザーに伝えてください：
+Present your analysis and audit results to the user:
 
-- **追加の提案**: 新しく発見したおすすめの追加Skillsとその理由（ユーザーのスタックにどう適合するか）をリストアップします。**ソースの監査を実施し、セキュリティリスクがなかった旨**も併せて伝えます。
-- **削除 / 保持の確認**: 「スタック外」と判断したSkillsをリストアップし、ユーザーに明確に尋ねます：「たまに使うために残しておきますか？それともコンテキスト節約のために基本は削りますか？（コンテキスト節約をする場合、必要になった時に都度導入できます）」
-- **改善案**: 冗長なSkillsや、制限すべき広すぎるワイルドカードインポートがあれば指摘します。
+- **Proposed Additions**: List recommended new skills and explain why they suit the user's stack. **Explicitly state that you have audited the sources and found no security risks.**
+- **Removal/Retention Confirmation**: List skills considered "out-of-stack" and ask the user: "Would you like to keep these for occasional use, or remove them to save context? (If removed, they can always be re-added when needed.)"
+- **Improvements**: Suggest refinements for redundant skill entries or overly broad wildcard imports.
 
-### 5. 変更の適用
+### 5. Applying Changes
 
-ユーザーから希望する対応の回答があったら：
+Once the user provides their preference:
 
-1. ユーザーが選んだ追加・削除内容に合わせて `config/skills.yaml` を更新します。
-2. 既存のYAMLコメントやフォーマットの構造は維持してください。
-3. task setup-skills` を実行して変更を反映するよう、ユーザーに伝えます。
+1. Update `config/skills.yaml` based on the user's choices.
+2. Maintain the original structure of YAML comments and formatting.
+3. Inform the user to run `skills_sync sync` (or the appropriate command) to apply the changes.
 
-## ベストプラクティス
+## Best Practices
 
-- **提案に対するユーザーの明確な同意がない限り、絶対に `skills.yaml` を変更しないでください**。
-- コミュニケーションは役に立つ内容で簡潔丁寧に行い、言語や振る舞いはユーザー固有のルールに従ってください。
+- **NEVER modify `skills.yaml` without explicit consent from the user.**
+- Keep communication helpful, concise, and professional, adhering to any user-specific language or behavioral rules.

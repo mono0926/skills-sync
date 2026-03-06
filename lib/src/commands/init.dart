@@ -10,7 +10,7 @@ class InitCommand extends SkillsSyncCommand {
   InitCommand();
   @override
   String get description =>
-      'デフォルト設定ファイル (~/.config/skills_sync/config.yaml) を生成します。';
+      'Generates the default global configuration file (~/.config/skills_sync/skills.yaml).';
 
   @override
   String get name => 'init';
@@ -19,15 +19,15 @@ class InitCommand extends SkillsSyncCommand {
   Future<int> run() async {
     final home = Platform.environment['HOME'] ?? '';
     if (home.isEmpty) {
-      logger.err('HOME ディレクトリが特定できません。');
+      logger.err('Could not identify the HOME directory.');
       return 1;
     }
 
     final configDir = Directory(p.join(home, '.config', 'skills_sync'));
-    final configFile = File(p.join(configDir.path, 'config.yaml'));
+    final configFile = File(p.join(configDir.path, 'skills.yaml'));
 
     if (configFile.existsSync()) {
-      logger.warn('設定ファイルは既に存在します: ${configFile.path}');
+      logger.warn('Configuration file already exists: ${configFile.path}');
       return 0;
     }
 
@@ -35,32 +35,32 @@ class InitCommand extends SkillsSyncCommand {
       configDir.createSync(recursive: true);
     }
 
-    const template = r'''# skills_sync configuration file
+    const template = r'''# skills_sync global configuration file
 #
-# 配置場所: ~/.config/skills_sync/config.yaml
+# Location: ~/.config/skills_sync/skills.yaml
 #
-# 記法例:
+# Examples:
 # global:
-#   # インストールしたSkillsを ~ / .agents / skills / 配下にグローバルに配置します。
-#   # スキーマ名: [Skills名1, Skills名2, ...]
-#   mono0926/script: # 全Skillsをインストール
+#   # Install skills globally to ~/.agents/skills/
+#   # source: [skill1, skill2, ...]
+#   mono0926/skills-sync: # Sync all skills
 #
 # ~/Git/my-project:
-#   # 特定のディレクトリ配下にSkillsを配置する場合
-#   mono0926/script:
+#   # Install skills to a specific project directory
+#   mono0926/skills-sync:
 #     - skills-optimizer
-#     - "!recipe-*" # recipe- で始まるSkillsを除外
-#   anthropic/skills:
-#     - "flutter-*" # flutter- で始まるSkillsをワイルドカード指定
+#     - "!recipe-*" # Exclude skills starting with 'recipe-'
+#   anthropics/skills:
+#     - "flutter-*" # Wildcard match
 
 global:
-  mono0926/skills-sync: # Skills Optimizer を含む基本Skillsセット
+  mono0926/skills-sync: # Essential skills including Skills Optimizer
 ''';
 
     configFile.writeAsStringSync(template);
     logger
-      ..success('設定ファイルを生成しました: ${configFile.path}')
-      ..info('\n次に `skills-sync sync` を実行してSkillsをインストールしてください。');
+      ..success('Generated configuration file: ${configFile.path}')
+      ..info('\nNext, run `skills_sync sync` to install skills.');
 
     return 0;
   }

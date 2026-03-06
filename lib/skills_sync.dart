@@ -1,4 +1,4 @@
-/// AI Agent Skillsを過不足なく同期するCLIツール
+/// A CLI tool to keep AI Agent Skills in sync.
 library;
 
 export 'src/command_runner.dart';

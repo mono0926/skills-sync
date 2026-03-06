@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:path/path.dart' as p;
 import 'package:skills_sync/src/command_base.dart';
 import 'package:test/test.dart';
 import 'package:yaml/yaml.dart';
@@ -30,6 +31,23 @@ void main() {
       }
       expect(command.expandPath('foo/bar'), 'foo/bar');
     });
+
+    test(
+      'findConfigFile prioritizes ./skills.yaml over global (mocked via temp)',
+      () {
+        final tempDir = Directory.systemTemp.createTempSync('skills_sync_test');
+        try {
+          final skillsFile = File(p.join(tempDir.path, 'skills.yaml'))
+            ..writeAsStringSync('global: {}');
+          expect(
+            command.findConfigFile(skillsFile.path)?.path,
+            skillsFile.path,
+          );
+        } finally {
+          tempDir.deleteSync(recursive: true);
+        }
+      },
+    );
 
     test('patternToRegExp converts wildcards to regex', () {
       final regex = command.patternToRegExp('flutter-*');
@@ -81,7 +99,7 @@ global:
 
       // ~/local/path
       final local = entries.firstWhere((e) => e.source == 'local/repo');
-      // expect(local.targetPath, contains('local/path')); // expandPath が走る
+      // expect(local.targetPath, contains('local/path')); // expandPath will be called
       expect(local.skills, contains('local-skill'));
     });
   });

@@ -21,31 +21,21 @@ dart pub global activate skills_sync
 
 ## Quick Start
 
-1. **Initialize**: Run `skills_sync init` to generate a default `skills.yaml`.
-2. **Configure**: Edit `skills.yaml` to add your favorite skill sources.
+1. **Initialize**: Run `skills_sync init` to generate the default global configuration at `~/.config/skills_sync/skills.yaml`.
+2. **Configure**: Edit the global configuration to add your favorite skill sources.
 3. **Sync**: Run `skills_sync sync` to install and update skills in your project.
 
 ---
 
-## 日本語 (Japanese)
-
-AI Agent Skills (SKILL.md) を、`skills.yaml` 設定ファイルに基づいて一括同期・管理する CLI ツールです。
-
-### 特徴
-
-- 📦 **一括同期**: 複数のリポジトリやローカルフォルダから、必要な Skill だけをまとめてプロジェクトに導入。
-- ⚡ **Wildcard 対応**: `*` を使った一括指定や、`!` による除外設定が可能。
-- 🧐 **最適化**: AI のコンテキスト節約、セキュリティ監査済みの Skill 利用など、開発体験を向上。
-
-### 使い方
-
-1. **初期設定**: `skills_sync init`
-2. **同期**: `skills_sync sync`
-3. **一覧表示**: `skills_sync list`
-
-詳しい設定方法は [README.md](README.md) (このファイル) の各セクションを参照してください。
-
 ---
+
+## Installation
+
+```bash
+dart pub global activate skills_sync
+```
+
+## Quick Start
 
 ## Detailed Usage
 
@@ -57,7 +47,10 @@ Run this in your project root:
 skills_sync init
 ```
 
-This generates `~/.config/skills_sync/config.yaml` (first time only) and a project-specific `skills.yaml`.
+This generates `~/.config/skills_sync/skills.yaml`. By default, `skills_sync` uses this global configuration to manage skills across all your projects.
+
+> [!NOTE]
+> You can also place a `skills.yaml` in your project root for project-specific settings. If present, it will take precedence over the global configuration.
 
 ### 2. Synchronization
 

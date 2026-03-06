@@ -1,4 +1,4 @@
-/// ドメイン固有のカスタム例外
+/// Custom exceptions for domain-specific errors.
 /// Base class for all exceptions thrown by the skills_sync application.
 class AppException implements Exception {
   /// Creates a new [AppException] with the given [message].

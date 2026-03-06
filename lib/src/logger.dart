@@ -1,4 +1,4 @@
 import 'package:mason_logger/mason_logger.dart';
 
-/// アプリケーション共通の [Logger]。
+/// Application-wide [Logger].
 final logger = Logger();
