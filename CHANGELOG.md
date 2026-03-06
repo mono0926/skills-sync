@@ -1,4 +1,4 @@
-## Unreleased
+## 0.0.2
 
 - fix: resolve deadlock and missing output in `skills_sync` parallel process streams.
 - refactor: translate CLI descriptions and error messages to English and reorganize example files.
