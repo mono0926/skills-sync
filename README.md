@@ -105,14 +105,10 @@ global:
 
 ### ローカルでの実行
 
-開発中に `dart run` で実行する場合、パッケージ名（`skills_sync`）またはコロン記法を使用してください：
+開発中に `dart run` で実行する場合：
 
 ```bash
-# パッケージ名で実行
 dart run skills_sync sync
-
-# コロン記法で実行
-dart run :skills-sync sync
 ```
 
 一度 `dart pub global activate --source path .` を実行すれば、`skills-sync` コマンドとして直接実行できるようになります。
