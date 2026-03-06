@@ -25,15 +25,17 @@ void main(List<String> args) async {
   final ArgResults results;
   try {
     results = parser.parse(args);
-  } catch (e) {
-    logger.err(e.toString());
-    print(parser.usage);
+  } on FormatException catch (e) {
+    logger
+      ..err(e.message)
+      ..info(parser.usage);
     exit(64);
   }
 
   if (results['help'] as bool) {
-    logger.info('Usage: dart run scripts/release.dart [options]');
-    logger.info(parser.usage);
+    logger
+      ..info('Usage: dart run scripts/release.dart [options]')
+      ..info(parser.usage);
     return;
   }
 
@@ -47,16 +49,18 @@ void main(List<String> args) async {
       loadYaml(File('pubspec.yaml').readAsStringSync()) as YamlMap;
   final currentVersion = pubspecYaml['version'] as String;
 
-  logger.info(
-    'Current version: ${lightCyan.wrap(currentVersion) ?? currentVersion}',
-  );
-  logger.info('Bumping type:    ${lightYellow.wrap(bumpType) ?? bumpType}');
+  logger
+    ..info(
+      'Current version: ${lightCyan.wrap(currentVersion) ?? currentVersion}',
+    )
+    ..info('Bumping type:    ${lightYellow.wrap(bumpType) ?? bumpType}');
 
   if (isDryRun) {
-    logger.info('\n--- DRY RUN ---');
-    logger.info('Would run: dart run cider bump $bumpType');
-    logger.info('Would run: dart run cider release');
-    logger.info('Would commit, tag and push.');
+    logger
+      ..info('\n--- DRY RUN ---')
+      ..info('Would run: dart run cider bump $bumpType')
+      ..info('Would run: dart run cider release')
+      ..info('Would commit, tag and push.');
     return;
   }
 
@@ -108,8 +112,9 @@ void main(List<String> args) async {
 Future<void> _run(String command, List<String> args, Logger logger) async {
   final result = await Process.run(command, args);
   if (result.exitCode != 0) {
-    logger.err('Error running $command ${args.join(' ')}:');
-    logger.err(result.stderr);
+    logger
+      ..err('Error running $command ${args.join(' ')}:')
+      ..err(result.stderr.toString());
     exit(result.exitCode);
   }
 }
