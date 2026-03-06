@@ -1,3 +1,8 @@
+## \[0.0.4\]
+- docs: update `skills-optimizer` and `skills-sync` skills with AI coordination guidelines.
+- fix: resolve syntax and lint errors in `sync.dart`.
+- fix: improve release notes extraction script to support bracketed version headers.
+
 ## \[0.0.3\]
 - feat: add confirmation prompt for `sync` command to prevent accidental deletion.
 - feat: add `--yes` (`-y`) flag to `sync` command to skip confirmation.
@@ -17,4 +22,4 @@
 ## \[0.0.1\]
 - Initial version.
 
-## 0.0.3 - 2026-03-06
+## 0.0.4 - 2026-03-06
