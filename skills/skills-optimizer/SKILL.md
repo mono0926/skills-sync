@@ -1,6 +1,6 @@
 ---
 name: skills-optimizer
-description: ユーザーのskills.yaml設定を最適化し、整理・管理します。重要: ユーザーが「Skillsを整理して」「Skillsを最適化して」「Skillsをクリーンアップして」と求めた場合や、コンテキストが散らかっていると感じてインストール済みのSkillsを見直したい場合にこのSkillsをトリガーしてください。ユーザーの普段の開発スタックを把握（または質問して確認）した上で、最適な新しいSkillsを提案したり、使われていないSkillsを指摘したり、安全な設定を保ちます。手動のファイル編集を促されるのを待たず、直接このSkillsを使用してください。
+description: ユーザーのskills.yaml設定を最適化し、プロファイルに合った最適なSkillsの提案や不要なSkillsの整理を行います。
 ---
 
 # Skills Optimizer (Skills最適化)
