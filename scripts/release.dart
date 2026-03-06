@@ -47,8 +47,10 @@ void main(List<String> args) async {
       loadYaml(File('pubspec.yaml').readAsStringSync()) as YamlMap;
   final currentVersion = pubspecYaml['version'] as String;
 
-  logger.info('Current version: ${lightCyan.wrap(currentVersion)}');
-  logger.info('Bumping type:    ${lightYellow.wrap(bumpType)}');
+  logger.info(
+    'Current version: ${lightCyan.wrap(currentVersion) ?? currentVersion}',
+  );
+  logger.info('Bumping type:    ${lightYellow.wrap(bumpType) ?? bumpType}');
 
   if (isDryRun) {
     logger.info('\n--- DRY RUN ---');
@@ -79,7 +81,7 @@ void main(List<String> args) async {
   final nextVersion = newPubspecYaml['version'] as String;
   final nextTag = 'v$nextVersion';
 
-  logger.info('Next version: ${lightGreen.wrap(nextVersion)}');
+  logger.info('Next version: ${lightGreen.wrap(nextVersion) ?? nextVersion}');
 
   // 5. Git actions
   await _run('git', ['add', 'pubspec.yaml', 'CHANGELOG.md'], logger);
