@@ -1,0 +1,21 @@
+# pub.dev publishing ignore file
+
+# CI/CD and internal configs
+.github/
+analysis_options.yaml
+
+# Local development and internal tools
+scripts/
+tmp/
+.agent/
+.agents/
+.gemini/
+
+# Development artifacts and sources not needed for runtime
+test/
+skills/
+.pubignore
+.gitignore
+task.md
+implementation_plan.md
+walkthrough.md
