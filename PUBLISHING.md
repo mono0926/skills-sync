@@ -3,17 +3,6 @@
 Releasing `skills_sync` to `pub.dev` is automated using GitHub Actions.
 It uses OIDC (OpenID Connect), so password or secret key management is not required and it is secure.
 
-## Preparation (One-time only)
-
-To enable automated publishing, you need to perform the following settings on `pub.dev`.
-
-1.  Access **[pub.dev/packages/skills_sync/admin](https://pub.dev/packages/skills_sync/admin)**.
-2.  Find the **Automated publishing** section.
-3.  Click **Enable publishing from GitHub Actions**.
-4.  Enter the following values and save.
-    - **Repository**: `mono0926/skills-sync`
-    - **Tag pattern**: `v{{version}}`
-
 ## Release Workflow
 
 To release a new version to pub.dev, we use the `release-pub` skill which automates the process safely.
