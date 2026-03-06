@@ -218,7 +218,7 @@ class SyncCommand extends SkillsSyncCommand {
 
     // --- Parallel Install ---
     final activeEntries = <SkillEntry>[];
-    final processFutures = <Future<Process>>[];
+    final resultFutures = <Future<ProcessResult>>[];
     for (final entry in resolvedEntries) {
       if (entry.targetPath != null && skippedPaths.contains(entry.targetPath)) {
         continue;
@@ -235,58 +235,58 @@ class SyncCommand extends SkillsSyncCommand {
         continue;
       }
 
-      processFutures.add(
-        Process.start(
-          command.first,
-          command.sublist(1),
-          runInShell: true,
-          workingDirectory: workingDirectory,
-        ),
-      );
+      final targetName = entry.targetPath ?? 'global';
+
+      final futureResult =
+          Process.start(
+            command.first,
+            command.sublist(1),
+            runInShell: true,
+            workingDirectory: workingDirectory,
+          ).then((p) async {
+            final stdoutLines = <String>[];
+            final stderrLines = <String>[];
+
+            final stdoutFuture = p.stdout
+                .transform(utf8.decoder)
+                .transform(const LineSplitter())
+                .listen((line) {
+                  if (line.trim().isEmpty) {
+                    return;
+                  }
+                  stdoutLines.add(line);
+                  logger.detail('[$targetName] $line');
+                })
+                .asFuture<void>();
+
+            final stderrFuture = p.stderr
+                .transform(utf8.decoder)
+                .transform(const LineSplitter())
+                .listen((line) {
+                  if (line.trim().isEmpty) {
+                    return;
+                  }
+                  stderrLines.add(line);
+                  logger.warn('[$targetName:stderr] $line');
+                })
+                .asFuture<void>();
+
+            final exitCode = await p.exitCode;
+            await Future.wait([stdoutFuture, stderrFuture]);
+
+            return ProcessResult(
+              p.pid,
+              exitCode,
+              stdoutLines.join('\n'),
+              stderrLines.join('\n'),
+            );
+          });
+
+      resultFutures.add(futureResult);
     }
 
     if (!dryRun) {
-      final runningProcesses = await Future.wait(processFutures);
-      final results = <ProcessResult>[];
-
-      for (var i = 0; i < runningProcesses.length; i++) {
-        final p = runningProcesses[i];
-        final entry = activeEntries[i];
-        final targetName = entry.targetPath ?? 'global';
-
-        final stdoutLines = <String>[];
-        final stderrLines = <String>[];
-
-        p.stdout.transform(utf8.decoder).transform(const LineSplitter()).listen(
-          (line) {
-            if (line.trim().isEmpty) {
-              return;
-            }
-            stdoutLines.add(line);
-            logger.detail('[$targetName] $line');
-          },
-        );
-
-        p.stderr.transform(utf8.decoder).transform(const LineSplitter()).listen(
-          (line) {
-            if (line.trim().isEmpty) {
-              return;
-            }
-            stderrLines.add(line);
-            logger.warn('[$targetName:stderr] $line');
-          },
-        );
-
-        final exitCode = await p.exitCode;
-        results.add(
-          ProcessResult(
-            p.pid,
-            exitCode,
-            stdoutLines.join('\n'),
-            stderrLines.join('\n'),
-          ),
-        );
-      }
+      final results = await Future.wait(resultFutures);
 
       final afterLocks = <String?, Map<String, dynamic>>{};
       for (final path in validPaths) {
