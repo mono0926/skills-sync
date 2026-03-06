@@ -81,6 +81,8 @@ skills_sync sync --config my-skills.yaml
 
 ### 設定ファイルの例
 
+リポジトリ内の [examples/mono/skills.yaml](https://github.com/mono0926/skills-sync/blob/main/examples/mono/skills.yaml) も参考にしてください。
+
 ```yaml
 global:
   mono0926/skills-sync: [] # Skills Optimizer を含む
