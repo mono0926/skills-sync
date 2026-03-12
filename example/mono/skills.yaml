@@ -2,6 +2,7 @@ global:
   # 全スキルインストールの場合は空リストにする
   mono0926/skills:
   mono0926/skills-sync:
+  genkit-ai/skills:
   google-gemini/gemini-skills:
     - '*'
     - '!gemini-api-dev' # gemini-interactions-api との重複を避けるため
@@ -69,8 +70,21 @@ global:
 # 存在しないパスはエラーを出さずにスキップされます。
 ~/Git/tax-return:
   kazukinagata/shinkoku:
+  googleworkspace/cli:
+    - '*calendar*'
+    - '*docs*'
+    - '*drive*'
+    - '*forms*'
+    - '*gmail*'
+    - '*keep*'
+    - '*meet*'
+    - '*people*'
+    - '*sheets*'
+    - '*slides*'
+    - '*tasks*'
+    - '*workflow*'
 
-~/Git/gws:
+~/Git/skills:
   googleworkspace/cli:
     - '*calendar*'
     - '*docs*'
