@@ -28,6 +28,8 @@ global:
     - '!flutter-http-and-json' # flutter-networking との重複を避けるため
     - '!flutter-databases' # flutter-drift 等の特化型があるため
     - '!flutter-duit-bdui' # BDUI実装時以外は不要なため
+  tokoroten/prompt-review:
+    - prompt-review
   sickn33/antigravity-awesome-skills:
     - typescript-expert
   github/awesome-copilot:
