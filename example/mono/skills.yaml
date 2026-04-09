@@ -14,6 +14,7 @@ global:
     - '*'
     - '!dart-checks-migration' # 移行完了済みのため
     - '!dart-matcher-best-practices' # 移行完了済みのため
+  ndpvt-web/latex-document-skill:
   # openclaw/openclaw:
 
   # 個別インストールの場合はリストを書く
@@ -43,6 +44,7 @@ global:
   anthropics/skills:
     - frontend-design
     - skill-creator
+    - pdf
   nextlevelbuilder/ui-ux-pro-max-skill:
     - ui-ux-pro-max
   obra/superpowers:
@@ -106,6 +108,21 @@ global:
     - '*tasks*'
     - '*workflow*'
 
+~/Git/mono:
+  mono0926/mono:
+  googleworkspace/cli:
+    - '*calendar*'
+    - '*docs*'
+    - '*drive*'
+    - '*forms*'
+    - '*gmail*'
+    - '*keep*'
+    - '*meet*'
+    - '*people*'
+    - '*sheets*'
+    - '*slides*'
+    - '*tasks*'
+    - '*workflow*'
 ~/Git/skills:
   googleworkspace/cli:
     - '*calendar*'
@@ -120,3 +137,10 @@ global:
     - '*slides*'
     - '*tasks*'
     - '*workflow*'
+~/Git/cube-timer:
+  daffy0208/ai-dev-standards:
+    - 3d-visualizer
+  jasonjgardner/blockbench-mcp-project:
+    - blockbench-modeling
+  omer-metin/skills-for-antigravity:
+    - puzzle-design
