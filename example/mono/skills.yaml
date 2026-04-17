@@ -10,6 +10,7 @@ global:
     - '*'
     - '!pirate-skill' # ジョークスキルのため
   firebase/agent-skills:
+  android/skills:
   kevmoo/dash_skills:
     - '*'
     - '!dart-checks-migration' # 移行完了済みのため
