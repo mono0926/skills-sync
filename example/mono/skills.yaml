@@ -11,6 +11,7 @@ global:
     - '!pirate-skill' # ジョークスキルのため
   firebase/agent-skills:
   android/skills:
+  takahirom/android-cli-ui-automation-skill:
   kevmoo/dash_skills:
     - '*'
     - '!dart-checks-migration' # 移行完了済みのため
