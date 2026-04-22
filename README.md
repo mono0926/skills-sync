@@ -85,7 +85,7 @@ For a faster update that only checks for the latest versions of your currently c
 skills_sync update
 ```
 
-This runs `npx skills update` across all configured global and local paths.
+This runs `gh skill update --all` across all configured global and local paths.
 
 ---
 
@@ -117,7 +117,8 @@ global:
 
 ## Environment Requirements
 
-- **Node.js**: Required for `npx` command.
+- **GitHub CLI**: Required for `gh` command.
+- **gh-skill extension**: Required for managing skills (`gh extension install mono0926/gh-skill`).
 - **Git**: Required for fetching remote repositories.
 
 ## Developer Note

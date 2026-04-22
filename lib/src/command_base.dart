@@ -18,11 +18,19 @@ abstract class SkillsSyncCommand extends Command<int> {
   /// The logger instance for commands.
   late final Logger logger;
 
-  /// Checks if the `npx` command is available.
-  Future<bool> checkNpx() async {
+  /// Checks if the `gh` command and `skill` extension are available.
+  Future<bool> checkGh() async {
     try {
-      final result = await Process.run('npx', ['--version'], runInShell: true);
-      return result.exitCode == 0;
+      final ghResult = await Process.run('gh', ['--version'], runInShell: true);
+      if (ghResult.exitCode != 0) {
+        return false;
+      }
+      final skillResult = await Process.run(
+        'gh',
+        ['skill', '--help'],
+        runInShell: true,
+      );
+      return skillResult.exitCode == 0;
     } on Exception catch (_) {
       return false;
     }

@@ -37,10 +37,14 @@ class UpdateCommand extends SkillsSyncCommand {
 
   @override
   Future<int> run() async {
-    if (!await checkNpx()) {
+    if (!await checkGh()) {
       logger
-        ..err('npx command not found.')
-        ..info('\nPlease install Node.js and npm: https://nodejs.org/');
+        ..err('gh command or skill extension not found.')
+        ..info(
+          '\nPlease install GitHub CLI and the skill extension:\n'
+          'https://cli.github.com/\n'
+          'gh extension install mono0926/gh-skill',
+        );
       return 1;
     }
 
@@ -76,12 +80,10 @@ class UpdateCommand extends SkillsSyncCommand {
       final targetName = path ?? 'global';
 
       final command = [
-        'npx',
-        'skills',
+        'gh',
+        'skill',
         'update',
-        if (path == null) '--global',
-        if (agent != '*') ...['--agent', agent],
-        '-y',
+        '--all',
       ];
 
       if (dryRun) {
