@@ -155,6 +155,24 @@ abstract class SkillsSyncCommand extends Command<int> {
         .replaceAll('*', '.*');
     return RegExp('^$escaped\$', caseSensitive: false);
   }
+
+  /// Returns the base directory for a given agent.
+  String getAgentBaseDir(String agent) {
+    final home = Platform.environment['HOME'] ?? '';
+    switch (agent) {
+      case 'antigravity':
+        return p.join(home, '.gemini', 'antigravity');
+      case 'claude-code':
+        return p.join(home, '.claude');
+      case 'gemini-cli':
+        return p.join(home, '.gemini', 'cli');
+      case 'cursor':
+        return p.join(home, '.cursor');
+      default:
+        // Default to ~/.agents for unknown agents
+        return p.join(home, '.agents');
+    }
+  }
 }
 
 class SkillEntry {

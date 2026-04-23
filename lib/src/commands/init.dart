@@ -41,7 +41,7 @@ class InitCommand extends SkillsSyncCommand {
 #
 # Examples:
 # global:
-#   # Install skills globally to ~/.gemini/antigravity/skills/
+#   # Install skills globally to the agent's default skills directory
 #   # source: [skill1, skill2, ...]
 #   mono0926/skills-sync: # Sync all skills
 #

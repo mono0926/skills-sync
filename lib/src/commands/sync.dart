@@ -101,7 +101,7 @@ class SyncCommand extends SkillsSyncCommand {
     // --- Helper Functions ---
     Map<String, dynamic> readLock(String? path) {
       final lockPath = path == null
-          ? expandPath('~/.gemini/antigravity/.skill-lock.json')
+          ? p.join(getAgentBaseDir(agent), '.skill-lock.json')
           : '${expandPath(path)}/skills-lock.json';
       final file = File(lockPath);
       if (!file.existsSync()) {
@@ -124,7 +124,7 @@ class SyncCommand extends SkillsSyncCommand {
 
     void writeLock(String? path, Map<String, dynamic> data) {
       final lockPath = path == null
-          ? expandPath('~/.gemini/antigravity/.skill-lock.json')
+          ? p.join(getAgentBaseDir(agent), '.skill-lock.json')
           : '${expandPath(path)}/skills-lock.json';
       final file = File(lockPath);
       if (!file.parent.existsSync()) {
@@ -175,7 +175,7 @@ class SyncCommand extends SkillsSyncCommand {
       for (final path in validPaths) {
         final targetName = path ?? 'global';
         final targetDir = path == null
-            ? expandPath('~/.gemini/antigravity/skills')
+            ? p.join(getAgentBaseDir(agent), 'skills')
             : '${expandPath(path)}/.agents/skills';
 
         if (dryRun) {
@@ -232,14 +232,15 @@ class SyncCommand extends SkillsSyncCommand {
             }
             final relativePath = p.relative(skillDir.path, from: sourcePath);
             final segments = p.split(relativePath);
-            
+
             // Handle standard container directories
-            if (segments.length >= 2 && 
-                (segments[0] == 'skills' || 
-                 (segments[0] == '.gemini' && segments[1] == 'skills') ||
-                 (segments[0] == '.agent' && segments[1] == 'skills'))) {
+            if (segments.length >= 2 &&
+                (segments[0] == 'skills' ||
+                    (segments[0].startsWith('.') && segments[1] == 'skills'))) {
               availableSkills.add(segments.last);
-            } else if (segments.length >= 4 && segments[0] == 'plugins' && segments[2] == 'skills') {
+            } else if (segments.length >= 4 &&
+                segments[0] == 'plugins' &&
+                segments[2] == 'skills') {
               availableSkills.add(segments.last);
             } else if (segments.length == 1) {
               availableSkills.add(segments[0]); // Root level sub-dir
@@ -282,14 +283,15 @@ class SyncCommand extends SkillsSyncCommand {
             }
             final relativePath = p.dirname(path);
             final segments = p.split(relativePath);
-            
+
             // Handle standard container directories
-            if (segments.length >= 2 && 
-                (segments[0] == 'skills' || 
-                 (segments[0] == '.gemini' && segments[1] == 'skills') ||
-                 (segments[0] == '.agent' && segments[1] == 'skills'))) {
+            if (segments.length >= 2 &&
+                (segments[0] == 'skills' ||
+                    (segments[0].startsWith('.') && segments[1] == 'skills'))) {
               availableSkills.add(segments.last);
-            } else if (segments.length >= 4 && segments[0] == 'plugins' && segments[2] == 'skills') {
+            } else if (segments.length >= 4 &&
+                segments[0] == 'plugins' &&
+                segments[2] == 'skills') {
               availableSkills.add(segments.last);
             } else if (segments.length == 1) {
               availableSkills.add(segments[0]); // Root level sub-dir
@@ -544,7 +546,7 @@ class SyncCommand extends SkillsSyncCommand {
           final skillHashes = <String, String>{};
           for (final skill in extractedSkills) {
             final skillPath = path == null
-                ? expandPath('~/.gemini/antigravity/skills/$skill')
+                ? p.join(getAgentBaseDir(agent), 'skills', skill)
                 : '${expandPath(path)}/.agents/skills/$skill';
 
             final skillDir = Directory(skillPath);
@@ -593,12 +595,12 @@ class SyncCommand extends SkillsSyncCommand {
             }).toSet();
 
             for (final exclude in entry.excludes) {
-              _deleteSkillDir(entry, exclude);
+              _deleteSkillDir(entry, exclude, agent);
             }
             final regexes = entry.excludePatterns.map(patternToRegExp).toList();
             if (regexes.isNotEmpty) {
               final skillDir = entry.targetPath == null
-                  ? expandPath('~/.gemini/antigravity/skills')
+                  ? p.join(getAgentBaseDir(agent), 'skills')
                   : '${expandPath(entry.targetPath!)}/.agents/skills';
               final dir = Directory(skillDir);
               if (dir.existsSync()) {
@@ -833,9 +835,9 @@ class SyncCommand extends SkillsSyncCommand {
     ];
   }
 
-  void _deleteSkillDir(SkillEntry entry, String skillName) {
+  void _deleteSkillDir(SkillEntry entry, String skillName, String agent) {
     final excludePath = entry.targetPath == null
-        ? expandPath('~/.gemini/antigravity/skills/$skillName')
+        ? p.join(getAgentBaseDir(agent), 'skills', skillName)
         : '${expandPath(entry.targetPath!)}/.agents/skills/$skillName';
     final excludeDir = Directory(excludePath);
     if (excludeDir.existsSync()) {
