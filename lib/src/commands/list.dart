@@ -16,10 +16,13 @@ class ListCommand extends SkillsSyncCommand {
 
   @override
   Future<int> run() async {
-    if (!await checkNpx()) {
+    if (!await checkGh()) {
       logger
-        ..err('npx command not found.')
-        ..info('\nPlease install Node.js and npm: https://nodejs.org/');
+        ..err('gh skill command not found.')
+        ..info(
+          '\nPlease install or update the latest GitHub CLI:\n'
+          'https://cli.github.com/',
+        );
       return 1;
     }
 

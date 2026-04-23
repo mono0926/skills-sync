@@ -18,11 +18,19 @@ abstract class SkillsSyncCommand extends Command<int> {
   /// The logger instance for commands.
   late final Logger logger;
 
-  /// Checks if the `npx` command is available.
-  Future<bool> checkNpx() async {
+  /// Checks if the `gh` command and `skill` feature are available.
+  Future<bool> checkGh() async {
     try {
-      final result = await Process.run('npx', ['--version'], runInShell: true);
-      return result.exitCode == 0;
+      final ghResult = await Process.run('gh', ['--version'], runInShell: true);
+      if (ghResult.exitCode != 0) {
+        return false;
+      }
+      final skillResult = await Process.run(
+        'gh',
+        ['skill', '--help'],
+        runInShell: true,
+      );
+      return skillResult.exitCode == 0;
     } on Exception catch (_) {
       return false;
     }
@@ -147,6 +155,24 @@ abstract class SkillsSyncCommand extends Command<int> {
         .replaceAll('*', '.*');
     return RegExp('^$escaped\$', caseSensitive: false);
   }
+
+  /// Returns the base directory for a given agent.
+  String getAgentBaseDir(String agent) {
+    final home = Platform.environment['HOME'] ?? '';
+    switch (agent) {
+      case 'antigravity':
+        return p.join(home, '.gemini', 'antigravity');
+      case 'claude-code':
+        return p.join(home, '.claude');
+      case 'gemini-cli':
+        return p.join(home, '.gemini', 'cli');
+      case 'cursor':
+        return p.join(home, '.cursor');
+      default:
+        // Default to ~/.agents for unknown agents
+        return p.join(home, '.agents');
+    }
+  }
 }
 
 class SkillEntry {
@@ -167,4 +193,24 @@ class SkillEntry {
   final List<String> excludePatterns;
   final String? targetPath;
   final List<String> installedSkills;
+
+  SkillEntry copyWith({
+    String? source,
+    List<String>? skills,
+    List<String>? patterns,
+    List<String>? excludes,
+    List<String>? excludePatterns,
+    String? targetPath,
+    List<String>? installedSkills,
+  }) {
+    return SkillEntry(
+      source: source ?? this.source,
+      skills: skills ?? this.skills,
+      patterns: patterns ?? this.patterns,
+      excludes: excludes ?? this.excludes,
+      excludePatterns: excludePatterns ?? this.excludePatterns,
+      targetPath: targetPath ?? this.targetPath,
+      installedSkills: installedSkills ?? this.installedSkills,
+    );
+  }
 }
