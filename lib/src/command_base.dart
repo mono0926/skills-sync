@@ -175,4 +175,24 @@ class SkillEntry {
   final List<String> excludePatterns;
   final String? targetPath;
   final List<String> installedSkills;
+
+  SkillEntry copyWith({
+    String? source,
+    List<String>? skills,
+    List<String>? patterns,
+    List<String>? excludes,
+    List<String>? excludePatterns,
+    String? targetPath,
+    List<String>? installedSkills,
+  }) {
+    return SkillEntry(
+      source: source ?? this.source,
+      skills: skills ?? this.skills,
+      patterns: patterns ?? this.patterns,
+      excludes: excludes ?? this.excludes,
+      excludePatterns: excludePatterns ?? this.excludePatterns,
+      targetPath: targetPath ?? this.targetPath,
+      installedSkills: installedSkills ?? this.installedSkills,
+    );
+  }
 }

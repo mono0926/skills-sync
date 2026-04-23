@@ -84,6 +84,9 @@ class UpdateCommand extends SkillsSyncCommand {
         'skill',
         'update',
         '--all',
+        '--agent',
+        agent,
+        '--allow-hidden-dirs',
       ];
 
       if (dryRun) {
