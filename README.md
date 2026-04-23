@@ -117,8 +117,7 @@ global:
 
 ## Environment Requirements
 
-- **GitHub CLI**: Required for `gh` command.
-- **gh-skill extension**: Required for managing skills (`gh extension install mono0926/gh-skill`).
+- **GitHub CLI**: Required for `gh skill` command.
 - **Git**: Required for fetching remote repositories.
 
 ## Developer Note

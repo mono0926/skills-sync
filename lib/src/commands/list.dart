@@ -18,11 +18,10 @@ class ListCommand extends SkillsSyncCommand {
   Future<int> run() async {
     if (!await checkGh()) {
       logger
-        ..err('gh command or skill extension not found.')
+        ..err('gh skill command not found.')
         ..info(
-          '\nPlease install GitHub CLI and the skill extension:\n'
-          'https://cli.github.com/\n'
-          'gh extension install mono0926/gh-skill',
+          '\nPlease install or update the latest GitHub CLI:\n'
+          'https://cli.github.com/',
         );
       return 1;
     }

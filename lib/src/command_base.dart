@@ -18,7 +18,7 @@ abstract class SkillsSyncCommand extends Command<int> {
   /// The logger instance for commands.
   late final Logger logger;
 
-  /// Checks if the `gh` command and `skill` extension are available.
+  /// Checks if the `gh` command and `skill` feature are available.
   Future<bool> checkGh() async {
     try {
       final ghResult = await Process.run('gh', ['--version'], runInShell: true);
