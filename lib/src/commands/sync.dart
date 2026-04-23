@@ -231,11 +231,21 @@ class SyncCommand extends SkillsSyncCommand {
               availableSkills.add(''); // Root skill
               continue;
             }
-            final skillName = p.basename(skillDir.path);
-            if (skillName.isNotEmpty &&
-                skillName != '.' &&
-                skillName != 'skills') {
-              availableSkills.add(skillName);
+            final relativePath = p.relative(skillDir.path, from: sourcePath);
+            final segments = p.split(relativePath);
+            
+            // Handle standard container directories
+            if (segments.length >= 2 && 
+                (segments[0] == 'skills' || 
+                 (segments[0] == '.gemini' && segments[1] == 'skills') ||
+                 (segments[0] == '.agent' && segments[1] == 'skills'))) {
+              availableSkills.add(segments.last);
+            } else if (segments.length >= 4 && segments[0] == 'plugins' && segments[2] == 'skills') {
+              availableSkills.add(segments.last);
+            } else if (segments.length == 1) {
+              availableSkills.add(segments[0]); // Root level sub-dir
+            } else {
+              availableSkills.add(relativePath); // Deeply nested, use full path
             }
           }
         }
@@ -271,12 +281,21 @@ class SyncCommand extends SkillsSyncCommand {
               availableSkills.add(''); // Root skill
               continue;
             }
-            final skillDir = p.dirname(path);
-            final skillName = p.basename(skillDir);
-            if (skillName.isNotEmpty &&
-                skillName != '.' &&
-                skillName != 'skills') {
-              availableSkills.add(skillName);
+            final relativePath = p.dirname(path);
+            final segments = p.split(relativePath);
+            
+            // Handle standard container directories
+            if (segments.length >= 2 && 
+                (segments[0] == 'skills' || 
+                 (segments[0] == '.gemini' && segments[1] == 'skills') ||
+                 (segments[0] == '.agent' && segments[1] == 'skills'))) {
+              availableSkills.add(segments.last);
+            } else if (segments.length >= 4 && segments[0] == 'plugins' && segments[2] == 'skills') {
+              availableSkills.add(segments.last);
+            } else if (segments.length == 1) {
+              availableSkills.add(segments[0]); // Root level sub-dir
+            } else {
+              availableSkills.add(relativePath); // Deeply nested, use full path
             }
           }
         } else {
