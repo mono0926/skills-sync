@@ -3,6 +3,8 @@ global:
   mono0926/skills:
   mono0926/skills-sync:
   genkit-ai/skills:
+  google/skills:
+  dart-lang/skills:
   google-gemini/gemini-skills:
     - '*'
     - '!gemini-api-dev' # gemini-interactions-api との重複を避けるため
