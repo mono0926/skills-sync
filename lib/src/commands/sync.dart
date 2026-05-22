@@ -495,7 +495,7 @@ class SyncCommand extends SkillsSyncCommand {
             final existing = allPossible[skill] as Map<String, dynamic>?;
             final hash = skillHashes[skill];
             mergedSkills[skill] = <String, dynamic>{
-              if (existing != null) ...existing,
+              ...?existing,
               'source': entry.source,
               'skillFolderHash': ?hash,
             };
