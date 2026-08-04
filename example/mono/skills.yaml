@@ -3,6 +3,7 @@ global:
   mono0926/skills:
   mono0926/skills-sync:
   genkit-ai/skills:
+  github/gh-stack:
   google/skills:
   dart-lang/skills:
   google-gemini/gemini-skills:
