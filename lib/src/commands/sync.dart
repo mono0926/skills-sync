@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:path/path.dart' as p;
 import 'package:skills_sync/src/audit_cache.dart';
 import 'package:skills_sync/src/command_base.dart';
 import 'package:skills_sync/src/logger.dart';
@@ -48,10 +49,13 @@ class SyncCommand extends SkillsSyncCommand {
 
   @override
   Future<int> run() async {
-    if (!await checkNpx()) {
+    if (!await checkGh()) {
       logger
-        ..err('npx command not found.')
-        ..info('\nPlease install Node.js and npm: https://nodejs.org/');
+        ..err('gh skill command not found.')
+        ..info(
+          '\nPlease install or update the latest GitHub CLI:\n'
+          'https://cli.github.com/',
+        );
       return 1;
     }
 
@@ -97,7 +101,7 @@ class SyncCommand extends SkillsSyncCommand {
     // --- Helper Functions ---
     Map<String, dynamic> readLock(String? path) {
       final lockPath = path == null
-          ? expandPath('~/.agents/.skill-lock.json')
+          ? p.join(getAgentBaseDir(agent), '.skill-lock.json')
           : '${expandPath(path)}/skills-lock.json';
       final file = File(lockPath);
       if (!file.existsSync()) {
@@ -120,7 +124,7 @@ class SyncCommand extends SkillsSyncCommand {
 
     void writeLock(String? path, Map<String, dynamic> data) {
       final lockPath = path == null
-          ? expandPath('~/.agents/.skill-lock.json')
+          ? p.join(getAgentBaseDir(agent), '.skill-lock.json')
           : '${expandPath(path)}/skills-lock.json';
       final file = File(lockPath);
       if (!file.parent.existsSync()) {
@@ -169,40 +173,28 @@ class SyncCommand extends SkillsSyncCommand {
       }
 
       for (final path in validPaths) {
-        final workingDirectory = path != null ? expandPath(path) : null;
         final targetName = path ?? 'global';
-
-        final command = [
-          'npx',
-          'skills',
-          'remove',
-          if (agent == '*') '--all' else ...['--agent', agent, '--skill', '*'],
-          if (path == null) '--global',
-          '-y',
-        ];
+        final targetDir = path == null
+            ? p.join(getAgentBaseDir(agent), 'skills')
+            : '${expandPath(path)}/.agents/skills';
 
         if (dryRun) {
-          final dirInfo = workingDirectory != null ? ' (in $path)' : '';
-          logger.info('${command.join(' ')}$dirInfo');
+          logger.info('rm -rf $targetDir');
           continue;
         }
 
         final progress = logger.progress('Removing skills for $targetName...');
-
-        final result = await Process.run(
-          command.first,
-          command.sublist(1),
-          runInShell: true,
-          workingDirectory: workingDirectory,
-        );
-
-        if (result.exitCode == 0) {
-          progress.complete('Removed skills for $targetName.');
+        final dir = Directory(targetDir);
+        if (dir.existsSync()) {
+          try {
+            dir.deleteSync(recursive: true);
+            progress.complete('Removed skills for $targetName.');
+          } on Exception catch (e) {
+            progress.fail('Failed to remove skills for $targetName: $e');
+            hasError = true;
+          }
         } else {
-          progress.fail(
-            'Failed to remove skills for $targetName:\n${result.stderr}',
-          );
-          hasError = true;
+          progress.complete('No skills found for $targetName (already clean).');
         }
       }
       logger.success('Existing skills removed.\n');
@@ -213,52 +205,157 @@ class SyncCommand extends SkillsSyncCommand {
     // --- Resolve Patterns ---
     final resolvedEntries = <SkillEntry>[];
     for (final entry in entries) {
-      if (entry.patterns.isEmpty) {
-        resolvedEntries.add(entry);
-        continue;
-      }
-
       final targetName = entry.targetPath ?? 'global';
       final progress = logger.progress(
         'Checking available skills for $targetName (${entry.source})...',
       );
 
-      final listResult = await Process.run('npx', [
-        'skills',
-        'add',
-        entry.source,
-        '--list',
-      ], runInShell: true);
+      final isLocal =
+          entry.source.startsWith('/') || entry.source.startsWith('~');
+      ProcessResult? listResult;
+      var availableSkills = <String>[];
 
-      if (listResult.exitCode != 0) {
-        progress.fail('Failed to get skill list: ${entry.source}');
-        resolvedEntries.add(entry);
-        continue;
-      }
+      if (isLocal) {
+        final sourcePath = expandPath(entry.source);
+        final sourceDir = Directory(sourcePath);
+        if (sourceDir.existsSync()) {
+          final skillFiles = sourceDir
+              .listSync(recursive: true)
+              .whereType<File>()
+              .where((f) => p.basename(f.path).toLowerCase() == 'skill.md');
 
-      final availableSkills = _extractSkillNames(listResult.stdout.toString());
-      final matchedSkills = <String>{...entry.skills};
+          for (final file in skillFiles) {
+            final skillDir = file.parent;
+            if (p.equals(skillDir.path, sourcePath)) {
+              availableSkills.add(''); // Root skill
+              continue;
+            }
+            final relativePath = p.relative(skillDir.path, from: sourcePath);
+            final segments = p.split(relativePath);
 
-      for (final pattern in entry.patterns) {
-        final regExp = patternToRegExp(pattern);
-        for (final skill in availableSkills) {
-          if (regExp.hasMatch(skill)) {
-            matchedSkills.add(skill);
+            // Handle standard container directories
+            if (segments.length >= 2 &&
+                (segments[0] == 'skills' ||
+                    (segments[0].startsWith('.') && segments[1] == 'skills'))) {
+              availableSkills.add(segments.last);
+            } else if (segments.length >= 4 &&
+                segments[0] == 'plugins' &&
+                segments[2] == 'skills') {
+              availableSkills.add(segments.last);
+            } else if (segments.length == 1) {
+              availableSkills.add(segments[0]); // Root level sub-dir
+            } else {
+              availableSkills.add(relativePath); // Deeply nested, use full path
+            }
           }
+        }
+      } else {
+        // Detect default branch
+        final repoInfo = await Process.run('gh', [
+          'api',
+          'repos/${entry.source}',
+          '--jq',
+          '.default_branch',
+        ], runInShell: true);
+        final branch = repoInfo.exitCode == 0
+            ? (repoInfo.stdout as String).trim()
+            : 'main';
+
+        // Use Git Trees API (recursive) to find all SKILL.md files in one call
+        final response = await Process.run('gh', [
+          'api',
+          'repos/${entry.source}/git/trees/$branch?recursive=1',
+          '--jq',
+          '.tree[] | select(.path | endswith("/SKILL.md") or . == "SKILL.md") | .path',
+        ], runInShell: true);
+
+        if (response.exitCode == 0) {
+          final paths = response.stdout
+              .toString()
+              .split('\n')
+              .map((s) => s.trim())
+              .where((s) => s.isNotEmpty);
+
+          for (final path in paths) {
+            if (path == 'SKILL.md') {
+              availableSkills.add(''); // Root skill
+              continue;
+            }
+            final relativePath = p.dirname(path);
+            final segments = p.split(relativePath);
+
+            // Handle standard container directories
+            if (segments.length >= 2 &&
+                (segments[0] == 'skills' ||
+                    (segments[0].startsWith('.') && segments[1] == 'skills'))) {
+              availableSkills.add(segments.last);
+            } else if (segments.length >= 4 &&
+                segments[0] == 'plugins' &&
+                segments[2] == 'skills') {
+              availableSkills.add(segments.last);
+            } else if (segments.length == 1) {
+              availableSkills.add(segments[0]); // Root level sub-dir
+            } else {
+              availableSkills.add(relativePath); // Deeply nested, use full path
+            }
+          }
+        } else {
+          listResult = response;
         }
       }
 
-      for (final pattern in entry.excludePatterns) {
-        final regExp = patternToRegExp(pattern);
-        matchedSkills.removeWhere(regExp.hasMatch);
+      availableSkills = availableSkills.toSet().toList(); // De-duplicate
+
+      if (availableSkills.isEmpty && !isLocal && listResult != null) {
+        progress.fail('Failed to get skill list: ${entry.source}');
+        resolvedEntries.add(entry);
+        hasError = true;
+        continue;
       }
 
-      entry.excludes.forEach(matchedSkills.remove);
+      final matchedSkills = <String>{};
+
+      if (entry.skills.isEmpty &&
+          entry.patterns.isEmpty &&
+          entry.excludes.isEmpty &&
+          entry.excludePatterns.isEmpty) {
+        // Case: No specific skills or patterns, install everything discovered
+        matchedSkills.addAll(availableSkills);
+      } else {
+        // Add explicit skills if they exist in availableSkills
+        for (final skill in entry.skills) {
+          if (availableSkills.contains(skill)) {
+            matchedSkills.add(skill);
+          } else if (skill.isEmpty && availableSkills.contains('')) {
+            matchedSkills.add('');
+          }
+        }
+
+        // Add skills matching patterns
+        for (final pattern in entry.patterns) {
+          final regExp = patternToRegExp(pattern);
+          for (final skill in availableSkills) {
+            if (regExp.hasMatch(skill)) {
+              matchedSkills.add(skill);
+            }
+          }
+        }
+
+        // Remove excluded skills
+        entry.excludes.forEach(matchedSkills.remove);
+
+        // Remove skills matching exclude patterns
+        for (final pattern in entry.excludePatterns) {
+          final regExp = patternToRegExp(pattern);
+          matchedSkills.removeWhere(regExp.hasMatch);
+        }
+      }
 
       if (matchedSkills.isEmpty) {
         progress.fail(
-          'No skills matched the patterns: ${entry.patterns.join(', ')}',
+          'No skills matched for ${entry.source}.',
         );
+        resolvedEntries.add(entry.copyWith(skills: []));
         continue;
       }
 
@@ -291,12 +388,25 @@ class SyncCommand extends SkillsSyncCommand {
       final workingDirectory = entry.targetPath != null
           ? expandPath(entry.targetPath!)
           : null;
-      final command = _buildCommand(entry, agent: agent);
       final targetName = entry.targetPath ?? 'global';
 
+      final skillsToInstall = entry.skills.isEmpty ? [''] : entry.skills;
+      final installed = <String>[];
+      var entryHasError = false;
+
       if (dryRun) {
-        final wdStr = workingDirectory != null ? ' (in $workingDirectory)' : '';
-        logger.info('${command.join(' ')}$wdStr');
+        for (final skill in skillsToInstall) {
+          final command = _buildCommand(
+            entry.source,
+            skill,
+            agent: agent,
+            isGlobal: entry.targetPath == null,
+          );
+          final wdStr = workingDirectory != null
+              ? ' (in $workingDirectory)'
+              : '';
+          logger.info('${command.join(' ')}$wdStr');
+        }
         continue;
       }
 
@@ -304,58 +414,86 @@ class SyncCommand extends SkillsSyncCommand {
         'Installing skills from ${entry.source} to $targetName...',
       );
 
-      final result =
-          await Process.start(
-            command.first,
-            command.sublist(1),
-            runInShell: true,
-            workingDirectory: workingDirectory,
-          ).then((p) async {
-            final stdoutLines = <String>[];
-            final stderrLines = <String>[];
+      for (final skill in skillsToInstall) {
+        final command = _buildCommand(
+          entry.source,
+          skill,
+          agent: agent,
+          isGlobal: entry.targetPath == null,
+        );
 
-            final stdoutFuture = p.stdout
-                .transform(utf8.decoder)
-                .transform(const LineSplitter())
-                .listen((line) {
-                  if (line.trim().isEmpty) {
-                    return;
-                  }
-                  stdoutLines.add(line);
-                  logger.detail('[$targetName] $line');
-                })
-                .asFuture<void>();
+        final result =
+            await Process.start(
+              command.first,
+              command.sublist(1),
+              runInShell: true,
+              workingDirectory: workingDirectory,
+            ).then((p) async {
+              final stdoutLines = <String>[];
+              final stderrLines = <String>[];
 
-            final stderrFuture = p.stderr
-                .transform(utf8.decoder)
-                .transform(const LineSplitter())
-                .listen((line) {
-                  if (line.trim().isEmpty) {
-                    return;
-                  }
-                  stderrLines.add(line);
-                  logger.warn('[$targetName:stderr] $line');
-                })
-                .asFuture<void>();
+              final stdoutFuture = p.stdout
+                  .transform(utf8.decoder)
+                  .transform(const LineSplitter())
+                  .listen((line) {
+                    if (line.trim().isEmpty) {
+                      return;
+                    }
+                    stdoutLines.add(line);
+                    logger.detail('[$targetName] $line');
+                  })
+                  .asFuture<void>();
 
-            final exitCode = await p.exitCode;
-            await Future.wait([stdoutFuture, stderrFuture]);
+              final stderrFuture = p.stderr
+                  .transform(utf8.decoder)
+                  .transform(const LineSplitter())
+                  .listen((line) {
+                    if (line.trim().isEmpty) {
+                      return;
+                    }
+                    stderrLines.add(line);
+                    logger.warn('[$targetName:stderr] $line');
+                  })
+                  .asFuture<void>();
 
-            return ProcessResult(
-              p.pid,
-              exitCode,
-              stdoutLines.join('\n'),
-              stderrLines.join('\n'),
-            );
-          });
+              final exitCode = await p.exitCode;
+              await Future.wait([stdoutFuture, stderrFuture]);
 
-      if (result.exitCode == 0) {
-        installProgress.complete('Installed skills from ${entry.source}.');
-        // Update the entry with actually installed skills
-        final stdoutStr = result.stdout.toString();
-        final regex = RegExp(r'\.agents/skills/([\w\-]+)');
-        final matches = regex.allMatches(stdoutStr);
-        final installed = matches.map((m) => m.group(1)!).toList();
+              return ProcessResult(
+                p.pid,
+                exitCode,
+                stdoutLines.join('\n'),
+                stderrLines.join('\n'),
+              );
+            });
+
+        if (result.exitCode == 0) {
+          if (skill.isEmpty) {
+            // All skills were installed (if gh skill supported it, but
+            // it's interactive)
+            // For now, we assume pattern resolution filled entry.skills
+          } else {
+            installed.add(skill);
+          }
+          results.add(result);
+        } else {
+          logger.err(
+            'Failed to install skill "$skill" from ${entry.source} '
+            '(exit code: ${result.exitCode})',
+          );
+          entryHasError = true;
+          hasError = true;
+        }
+      }
+
+      if (!dryRun) {
+        if (!entryHasError) {
+          installProgress.complete('Installed skills from ${entry.source}.');
+        } else {
+          installProgress.fail(
+            'Some skills failed to install from ${entry.source}.',
+          );
+        }
 
         final updatedEntry = SkillEntry(
           source: entry.source,
@@ -367,15 +505,7 @@ class SyncCommand extends SkillsSyncCommand {
           installedSkills: installed,
         );
         activeEntries[activeEntries.length - 1] = updatedEntry;
-      } else {
-        installProgress.fail(
-          'Failed to install skills from ${entry.source} '
-          '(exit code: ${result.exitCode})',
-        );
-        hasError = true;
       }
-
-      results.add(result);
     }
 
     if (!dryRun) {
@@ -416,7 +546,7 @@ class SyncCommand extends SkillsSyncCommand {
           final skillHashes = <String, String>{};
           for (final skill in extractedSkills) {
             final skillPath = path == null
-                ? expandPath('~/.agents/skills/$skill')
+                ? p.join(getAgentBaseDir(agent), 'skills', skill)
                 : '${expandPath(path)}/.agents/skills/$skill';
 
             final skillDir = Directory(skillPath);
@@ -465,12 +595,12 @@ class SyncCommand extends SkillsSyncCommand {
             }).toSet();
 
             for (final exclude in entry.excludes) {
-              _deleteSkillDir(entry, exclude);
+              _deleteSkillDir(entry, exclude, agent);
             }
             final regexes = entry.excludePatterns.map(patternToRegExp).toList();
             if (regexes.isNotEmpty) {
               final skillDir = entry.targetPath == null
-                  ? expandPath('~/.agents/skills')
+                  ? p.join(getAgentBaseDir(agent), 'skills')
                   : '${expandPath(entry.targetPath!)}/.agents/skills';
               final dir = Directory(skillDir);
               if (dir.existsSync()) {
@@ -683,39 +813,31 @@ class SyncCommand extends SkillsSyncCommand {
     return hasError ? 1 : 0;
   }
 
-  List<String> _buildCommand(SkillEntry entry, {required String agent}) {
+  List<String> _buildCommand(
+    String source,
+    String skill, {
+    required String agent,
+    required bool isGlobal,
+  }) {
+    final isLocal = source.startsWith('/') || source.startsWith('~');
     return [
-      'npx',
-      'skills',
-      'add',
-      entry.source,
-      if (entry.targetPath == null) '--global',
+      'gh',
+      'skill',
+      'install',
+      if (isLocal) expandPath(source) else source,
+      if (skill.isNotEmpty) skill,
+      '--allow-hidden-dirs',
+      if (isLocal) '--from-local',
+      if (isGlobal) ...['--scope', 'user'],
       '--agent',
       agent,
-      '-y',
-      if (entry.skills.isNotEmpty) ...['--skill', ...entry.skills],
+      '--force',
     ];
   }
 
-  List<String> _extractSkillNames(String output) {
-    final cleanOutput = output.replaceAll(
-      RegExp(r'\x1B\[[0-?]*[ -/]*[@-~]'),
-      '',
-    );
-    final names = <String>{};
-    final regex = RegExp(r'(?:│\s{4}|-\s+|│\s+-\s+)([\w\d\-]+)(?:\s|$)');
-    for (final match in regex.allMatches(cleanOutput)) {
-      final name = match.group(1)!;
-      if (name.length > 2 && !name.contains(' ')) {
-        names.add(name);
-      }
-    }
-    return names.toList();
-  }
-
-  void _deleteSkillDir(SkillEntry entry, String skillName) {
+  void _deleteSkillDir(SkillEntry entry, String skillName, String agent) {
     final excludePath = entry.targetPath == null
-        ? expandPath('~/.agents/skills/$skillName')
+        ? p.join(getAgentBaseDir(agent), 'skills', skillName)
         : '${expandPath(entry.targetPath!)}/.agents/skills/$skillName';
     final excludeDir = Directory(excludePath);
     if (excludeDir.existsSync()) {
