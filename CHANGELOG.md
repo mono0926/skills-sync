@@ -1,3 +1,12 @@
+## 0.2.2 - 2026-08-05
+
+### Refactor
+- Simplify skill merging logic in `sync` command using spread operator.
+
+### Maintenance & Dependencies
+- Upgrade project dependencies.
+- Update example skills configuration.
+
 ## 0.2.1 - 2026-03-07
 
 ### Refactor
