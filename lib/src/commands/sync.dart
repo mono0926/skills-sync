@@ -176,7 +176,7 @@ class SyncCommand extends SkillsSyncCommand {
           'npx',
           'skills',
           'remove',
-          if (agent == '*') '--all' else ...['--agent', agent, '--skill', '*'],
+          '--all',
           if (path == null) '--global',
           '-y',
         ];
