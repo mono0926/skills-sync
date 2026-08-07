@@ -2,46 +2,46 @@ global:
   # 全スキルインストールの場合は空リストにする
   mono0926/skills:
   mono0926/skills-sync:
-  genkit-ai/skills:
+  # genkit-ai/skills:
   github/gh-stack:
-  google/skills:
-  dart-lang/skills:
-  google-gemini/gemini-skills:
+  # google/skills:
+  # dart-lang/skills:
+  # google-gemini/gemini-skills:
     - '*'
     - '!gemini-api-dev' # gemini-interactions-api との重複を避けるため
-  google-gemini/gemini-cli:
+  # google-gemini/gemini-cli:
     - '*'
     - '!pirate-skill' # ジョークスキルのため
-  firebase/agent-skills:
-  android/skills:
-  takahirom/android-cli-ui-automation-skill:
-  kevmoo/dash_skills:
-    - '*'
-    - '!dart-checks-migration' # 移行完了済みのため
-    - '!dart-matcher-best-practices' # 移行完了済みのため
+  # firebase/agent-skills:
+  # android/skills:
+  # takahirom/android-cli-ui-automation-skill:
+  # kevmoo/dash_skills:
+  #   - '*'
+  #   - '!dart-checks-migration' # 移行完了済みのため
+  #   - '!dart-matcher-best-practices' # 移行完了済みのため
   ndpvt-web/latex-document-skill:
   # openclaw/openclaw:
 
   # 個別インストールの場合はリストを書く
-  flutter/skills:
-    - '*'
-    - '!flutter-architecture' # 既存アーキテクチャに特化するため
-    - '!flutter-state-management' # 既存アーキテクチャに特化するため
-    - '!flutter-animation' # flutter-animations との重複を避けるため
-    - '!flutter-localization' # flutter-internationalization を優先するため
-    - '!flutter-environment-setup-linux' # macOS環境では不要なため
-    - '!flutter-environment-setup-windows' # macOS環境では不要なため
-    - '!flutter-http-and-json' # flutter-networking との重複を避けるため
-    - '!flutter-databases' # flutter-drift 等の特化型があるため
-    - '!flutter-duit-bdui' # BDUI実装時以外は不要なため
-  VeryGoodOpenSource/very_good_ai_flutter_plugin:
-    - vgv-static-security
-  tokoroten/prompt-review:
-    - prompt-review
+  # flutter/skills:
+  #   - '*'
+  #   - '!flutter-architecture' # 既存アーキテクチャに特化するため
+  #   - '!flutter-state-management' # 既存アーキテクチャに特化するため
+  #   - '!flutter-animation' # flutter-animations との重複を避けるため
+  #   - '!flutter-localization' # flutter-internationalization を優先するため
+  #   - '!flutter-environment-setup-linux' # macOS環境では不要なため
+  #   - '!flutter-environment-setup-windows' # macOS環境では不要なため
+  #   - '!flutter-http-and-json' # flutter-networking との重複を避けるため
+  #   - '!flutter-databases' # flutter-drift 等の特化型があるため
+  #   - '!flutter-duit-bdui' # BDUI実装時以外は不要なため
+  # VeryGoodOpenSource/very_good_ai_flutter_plugin:
+  #   - vgv-static-security
+  # tokoroten/prompt-review:
+  #   - prompt-review
   sickn33/antigravity-awesome-skills:
     - typescript-expert
-  github/awesome-copilot:
-    - gh-cli
+  # github/awesome-copilot:
+  #   - gh-cli
   vercel-labs/skills:
     - find-skills
   rodydavis/skills:
@@ -65,40 +65,39 @@ global:
     - mobile-android-design
     - mobile-ios-design
     - responsive-design
-  madteacher/mad-agents-skills:
-    - '*'
-    - '!flutter-navigation' # flutter-routing-and-navigation を優先するため
-    - '!flutter-animating-apps' # flutter-animations との重複を避けるため
-    - '!flutter-improving-accessibility' # flutter-accessibility との重複を避けるため
-    - '!flutter-building-layouts' # flutter-layout との重複を避けるため
-    - '!flutter-building-plugins' # flutter-plugins との重複を避けるため
-    - '!flutter-localizing-apps' # flutter-internationalization を優先するため
-    - '!flutter-handling-http-and-json' # flutter-networking との重複を避けるため
-    - '!flutter-testing-apps' # flutter-testing との重複を避けるため
-    - '!flutter-theming-apps' # flutter-theming との重複を避けるため
-    - '!flutter-caching-data' # flutter-caching との重複を避けるため
-    - '!flutter-handling-concurrency' # flutter-concurrency との重複を避けるため
-    - '!flutter-adding-home-screen-widgets' # flutter-home-screen-widget との重複を避けるため
-    - '!flutter-interoperating-with-native-apis' # flutter-native-interop との重複を避けるため
-    - '!flutter-embedding-native-views' # flutter-platform-views との重複を避けるため
-    - '!flutter-setting-up-on-linux' # macOS環境では不要なため
-    - '!flutter-setting-up-on-windows' # macOS環境では不要なため
-    - '!flutter-reducing-app-size' # flutter-performance との重複を避けるため
+  # madteacher/mad-agents-skills:
+  #   - '*'
+  #   - '!flutter-navigation' # flutter-routing-and-navigation を優先するため
+  #   - '!flutter-animating-apps' # flutter-animations との重複を避けるため
+  #   - '!flutter-improving-accessibility' # flutter-accessibility との重複を避けるため
+  #   - '!flutter-building-layouts' # flutter-layout との重複を避けるため
+  #   - '!flutter-building-plugins' # flutter-plugins との重複を避けるため
+  #   - '!flutter-localizing-apps' # flutter-internationalization を優先するため
+  #   - '!flutter-handling-http-and-json' # flutter-networking との重複を避けるため
+  #   - '!flutter-testing-apps' # flutter-testing との重複を避けるため
+  #   - '!flutter-theming-apps' # flutter-theming との重複を避けるため
+  #   - '!flutter-caching-data' # flutter-caching との重複を避けるため
+  #   - '!flutter-handling-concurrency' # flutter-concurrency との重複を避けるため
+  #   - '!flutter-adding-home-screen-widgets' # flutter-home-screen-widget との重複を避けるため
+  #   - '!flutter-interoperating-with-native-apis' # flutter-native-interop との重複を避けるため
+  #   - '!flutter-embedding-native-views' # flutter-platform-views との重複を避けるため
+  #   - '!flutter-setting-up-on-linux' # macOS環境では不要なため
+  #   - '!flutter-setting-up-on-windows' # macOS環境では不要なため
+  #   - '!flutter-reducing-app-size' # flutter-performance との重複を避けるため
 
-  jimliu/baoyu-skills:
-    - release-skills
+  # jimliu/baoyu-skills:
+  #   - release-skills
 
-  heyixuan2/bambu-studio-ai: # Bambu Lab P2S 活用のため
-    - bambu-studio-ai
-
-  odrobnik/tesla-fleet-api-skill: # Model 3 Highland 連携のため
-    - tesla-fleet-api
+  # odrobnik/tesla-fleet-api-skill: # Model 3 Highland 連携のため
+  #   - tesla-fleet-api
 
 # --- パスごとの個別インストール (${HOME} または該当ディレクトリ配下) ---
 # プロジェクトごとにローカルでインストールしたいSkillを設定します。
 # 存在しないパスはエラーを出さずにスキップされます。
 ~/Git/3d-modeling:
   earthtojake/text-to-cad:
+  heyixuan2/bambu-studio-ai: # Bambu Lab P2S 活用のため
+  - bambu-studio-ai
 ~/Git/tax-return:
   kazukinagata/shinkoku:
   googleworkspace/cli:
