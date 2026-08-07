@@ -97,6 +97,8 @@ global:
 # --- パスごとの個別インストール (${HOME} または該当ディレクトリ配下) ---
 # プロジェクトごとにローカルでインストールしたいSkillを設定します。
 # 存在しないパスはエラーを出さずにスキップされます。
+~/Git/3d-modeling
+  earthtojake/text-to-cad:
 ~/Git/tax-return:
   kazukinagata/shinkoku:
   googleworkspace/cli:
