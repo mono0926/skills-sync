@@ -1,3 +1,11 @@
+## 0.2.3 - 2026-08-07
+
+### Refactor
+- Simplify skill removal command to always use the `--all` flag.
+
+### Maintenance
+- Update skill definitions in `skills.yaml` and example configuration.
+
 ## 0.2.2 - 2026-08-05
 
 ### Refactor

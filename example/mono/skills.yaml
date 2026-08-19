@@ -99,6 +99,7 @@ global:
   heyixuan2/bambu-studio-ai: # Bambu Lab P2S 活用のため
   - bambu-studio-ai
 ~/Git/tax-return:
+  mono0926/tex-return:
   kazukinagata/shinkoku:
   googleworkspace/cli:
     - '*calendar*'
