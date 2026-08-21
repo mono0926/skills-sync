@@ -1,6 +1,7 @@
 global:
   # 全スキルインストールの場合は空リストにする
   mono0926/skills:
+    - '!flutter-upgrade-3-47'
   mono0926/skills-sync:
   # genkit-ai/skills:
   github/gh-stack:
