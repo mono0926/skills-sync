@@ -4,12 +4,12 @@ global:
   mono0926/skills-sync:
   # genkit-ai/skills:
   github/gh-stack:
-  # google/skills:
-  # dart-lang/skills:
-  # google-gemini/gemini-skills:
+    # google/skills:
+    # dart-lang/skills:
+    # google-gemini/gemini-skills:
     - '*'
     - '!gemini-api-dev' # gemini-interactions-api との重複を避けるため
-  # google-gemini/gemini-cli:
+    # google-gemini/gemini-cli:
     - '*'
     - '!pirate-skill' # ジョークスキルのため
   # firebase/agent-skills:
@@ -19,7 +19,6 @@ global:
   #   - '*'
   #   - '!dart-checks-migration' # 移行完了済みのため
   #   - '!dart-matcher-best-practices' # 移行完了済みのため
-  ndpvt-web/latex-document-skill:
   # openclaw/openclaw:
 
   # 個別インストールの場合はリストを書く
@@ -97,7 +96,7 @@ global:
 ~/Git/3d-modeling:
   earthtojake/text-to-cad:
   heyixuan2/bambu-studio-ai: # Bambu Lab P2S 活用のため
-  - bambu-studio-ai
+    - bambu-studio-ai
 ~/Git/tax-return:
   mono0926/tex-return:
   kazukinagata/shinkoku:
@@ -151,3 +150,5 @@ global:
     - blockbench-modeling
   omer-metin/skills-for-antigravity:
     - puzzle-design
+~/Git/workbook:
+  ndpvt-web/latex-document-skill:
