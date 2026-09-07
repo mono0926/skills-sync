@@ -1,4 +1,4 @@
-## 0.2.3 - 2026-08-07
+## 0.2.3 - 2026-09-07
 
 ### Refactor
 - Simplify skill removal command to always use the `--all` flag.
