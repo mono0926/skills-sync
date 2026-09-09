@@ -1,5 +1,5 @@
 ---
-name: skills-optimizer
+name: skills_sync-optimizer
 description: Optimizes the user's skills.yaml configuration, offering tailored skill suggestions and organizing redundant or out-of-stack skills.
 ---
 
