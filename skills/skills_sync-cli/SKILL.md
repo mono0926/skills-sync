@@ -1,5 +1,5 @@
 ---
-name: skills-sync
+name: skills_sync-cli
 description: Provides usage instructions and best practices for the skills_sync CLI tool. Use this to understand how to manage, sync, and configure AI agent skills based on the user's config file.
 ---
 

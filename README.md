@@ -18,8 +18,8 @@ A CLI tool to keep [AI Agent Skills](https://agentskills.io/home) (`SKILL.md`) i
 
 This repository includes dedicated skills to help AI agents manage your development environment:
 
-- **[skills-sync](https://github.com/mono0926/skills-sync/blob/main/skills/skills-sync/SKILL.md)**: Teaches the AI how to use this CLI tool correctly, ensuring it doesn't make accidental changes.
-- **[skills-optimizer](https://github.com/mono0926/skills-sync/blob/main/skills/skills-optimizer/SKILL.md)**: Enables the AI to analyze your tech stack and propose optimizations for your `skills.yaml`, including security audits of new skills.
+- **[skills_sync-cli](skills/skills_sync-cli/SKILL.md)**: Teaches the AI how to use this CLI tool correctly, ensuring it doesn't make accidental changes.
+- **[skills_sync-optimizer](skills/skills_sync-optimizer/SKILL.md)**: Enables the AI to analyze your tech stack and propose optimizations for your `skills.yaml`, including security audits of new skills.
 
 To use them, add `mono0926/skills-sync` to your `skills.yaml`.
 
