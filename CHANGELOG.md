@@ -1,3 +1,13 @@
+## 0.3.0 - 2026-11-12
+
+### Features
+- Align bundled skills prefix with Dart Skills CLI 1.0 (`skills_sync-cli`, `skills_sync-optimizer`).
+
+### Maintenance & Dependencies
+- Require Dart SDK `^3.14.0` and adopt primary constructor syntax.
+- Upgrade dependencies including `cli_completion: ^0.6.0` and `pedantic_mono: ^1.39.0`.
+- Update example `skills.yaml` configuration.
+
 ## 0.2.3 - 2026-09-07
 
 ### Refactor
