@@ -5,7 +5,7 @@ import 'package:skills_sync/src/command_base.dart';
 import 'package:test/test.dart';
 import 'package:yaml/yaml.dart';
 
-class TestCommand extends SkillsSyncCommand {
+class TestCommand() extends SkillsSyncCommand {
   @override
   String get description => 'Test Command';
 
@@ -60,8 +60,7 @@ void main() {
     });
 
     test('parseSkillEntries handles various YAML structures', () {
-      final yaml =
-          loadYaml('''
+      final yaml = loadYaml('''
 global:
   mono0926/skills-sync:
   another/repo: []
@@ -72,8 +71,7 @@ global:
 ~/local/path:
   local/repo:
     - local-skill
-''')
-              as YamlMap;
+''') as YamlMap;
 
       final entries = command.parseSkillEntries(yaml);
 

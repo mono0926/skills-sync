@@ -6,8 +6,8 @@ import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 
 /// Base class for all skills_sync commands.
-abstract class SkillsSyncCommand extends Command<int> {
-  SkillsSyncCommand() {
+abstract class SkillsSyncCommand() extends Command<int> {
+  this {
     argParser.addOption(
       'config',
       abbr: 'c',
@@ -149,22 +149,12 @@ abstract class SkillsSyncCommand extends Command<int> {
   }
 }
 
-class SkillEntry {
-  SkillEntry({
-    required this.source,
-    this.skills = const [],
-    this.patterns = const [],
-    this.excludes = const [],
-    this.excludePatterns = const [],
-    this.targetPath,
-    this.installedSkills = const [],
-  });
-
-  final String source;
-  final List<String> skills;
-  final List<String> patterns;
-  final List<String> excludes;
-  final List<String> excludePatterns;
-  final String? targetPath;
-  final List<String> installedSkills;
-}
+class SkillEntry({
+  required final String source,
+  final List<String> skills = const [],
+  final List<String> patterns = const [],
+  final List<String> excludes = const [],
+  final List<String> excludePatterns = const [],
+  final String? targetPath,
+  final List<String> installedSkills = const [],
+});

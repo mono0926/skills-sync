@@ -5,9 +5,9 @@ import 'package:skills_sync/src/command_base.dart';
 import 'package:skills_sync/src/logger.dart';
 
 /// The command that initializes the skills_sync configuration.
-class InitCommand extends SkillsSyncCommand {
+class InitCommand() extends SkillsSyncCommand {
   /// Initializes a new instance of the [InitCommand].
-  InitCommand();
+  this;
   @override
   String get description =>
       'Generates the default global configuration file (~/.config/skills_sync/skills.yaml).';
