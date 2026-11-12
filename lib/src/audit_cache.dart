@@ -4,12 +4,7 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 /// A utility to manage persistent audit results.
-class AuditCache {
-  AuditCache._(this._file, this._data);
-
-  final File _file;
-  final Map<String, dynamic> _data;
-
+class AuditCache._(final File _file, final Map<String, dynamic> _data) {
   /// Loads the audit cache from the default location.
   /// Location: ~/.config/skills_sync/audit-cache.json
   static Future<AuditCache> load() async {

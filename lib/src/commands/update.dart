@@ -5,9 +5,9 @@ import 'package:skills_sync/src/logger.dart';
 import 'package:yaml/yaml.dart';
 
 /// The command that updates all installed skills.
-class UpdateCommand extends SkillsSyncCommand {
+class UpdateCommand() extends SkillsSyncCommand {
   /// Creates a new [UpdateCommand].
-  UpdateCommand() {
+  this {
     argParser
       ..addFlag(
         'dry-run',

@@ -65,6 +65,8 @@ global:
     - mobile-android-design
     - mobile-ios-design
     - responsive-design
+  google-deepmind/science-skills:
+    - literature-search-openalex
   # madteacher/mad-agents-skills:
   #   - '*'
   #   - '!flutter-navigation' # flutter-routing-and-navigation を優先するため

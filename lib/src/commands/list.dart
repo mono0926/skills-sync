@@ -6,7 +6,7 @@ import 'package:skills_sync/src/logger.dart';
 import 'package:yaml/yaml.dart';
 
 /// The command that lists the current configuration and its status.
-class ListCommand extends SkillsSyncCommand {
+class ListCommand() extends SkillsSyncCommand {
   @override
   String get description =>
       'Lists the current configuration and installed skills.';
