@@ -35,7 +35,9 @@ class SyncCommand() extends SkillsSyncCommand {
       )
       ..addFlag(
         'clean',
-        help: 'Delete all existing skills before syncing.',
+        help:
+            'Delete lockfile-tracked skills before syncing '
+            '(preserves untracked local skills).',
         defaultsTo: true,
       );
   }
@@ -137,12 +139,24 @@ class SyncCommand() extends SkillsSyncCommand {
 
     final yes = argResults?['yes'] as bool? ?? false;
 
-    if (!yes && clean) {
-      final targetDirs = validPaths.map((p) => p ?? 'global').join('\n  - ');
+    final trackedSkillsByPath = <String?, List<String>>{
+      for (final path in validPaths)
+        path: extractTrackedSkills(beforeLocks[path] ?? const {}),
+    };
+    final hasTrackedSkillsToRemove = trackedSkillsByPath.values.any(
+      (skills) => skills.isNotEmpty,
+    );
+
+    if (!yes && clean && hasTrackedSkillsToRemove) {
+      final targetDirs = trackedSkillsByPath.entries
+          .where((e) => e.value.isNotEmpty)
+          .map((e) => e.key ?? 'global')
+          .join('\n  - ');
       logger
         ..warn(
-          '⚠️  WARNING: This command will DELETE all existing skills in the '
-          'target directories before syncing.',
+          '⚠️  WARNING: This command will DELETE lockfile-tracked skills in '
+          'the target directories before syncing (untracked local skills will '
+          'be preserved).',
         )
         ..info('Target locations:\n  - $targetDirs\n');
 
@@ -160,52 +174,63 @@ class SyncCommand() extends SkillsSyncCommand {
     final diffs = <String?, Map<String, dynamic>>{};
 
     if (clean) {
-      if (dryRun) {
+      if (!hasTrackedSkillsToRemove) {
         logger.info(
-          '=== Dry Run: The following removal commands would be executed ===',
+          '=== Removing existing tracked skills '
+          '(no tracked skills found) ===\n',
         );
       } else {
-        logger.info('=== Removing existing skills ===');
-      }
-
-      for (final path in validPaths) {
-        final workingDirectory = path != null ? expandPath(path) : null;
-        final targetName = path ?? 'global';
-
-        final command = [
-          'npx',
-          'skills',
-          'remove',
-          '--all',
-          if (path == null) '--global',
-          '-y',
-        ];
-
         if (dryRun) {
-          final dirInfo = workingDirectory != null ? ' (in $path)' : '';
-          logger.info('${command.join(' ')}$dirInfo');
-          continue;
-        }
-
-        final progress = logger.progress('Removing skills for $targetName...');
-
-        final result = await Process.run(
-          command.first,
-          command.sublist(1),
-          runInShell: true,
-          workingDirectory: workingDirectory,
-        );
-
-        if (result.exitCode == 0) {
-          progress.complete('Removed skills for $targetName.');
-        } else {
-          progress.fail(
-            'Failed to remove skills for $targetName:\n${result.stderr}',
+          logger.info(
+            '=== Dry Run: The following removal commands would be executed ===',
           );
-          hasError = true;
+        } else {
+          logger.info('=== Removing existing tracked skills ===');
         }
+
+        for (final path in validPaths) {
+          final skillsToRemove = trackedSkillsByPath[path] ?? const [];
+          if (skillsToRemove.isEmpty) {
+            continue;
+          }
+
+          final workingDirectory = path != null ? expandPath(path) : null;
+          final targetName = path ?? 'global';
+          final command = buildRemoveCommand(
+            skillsToRemove,
+            isGlobal: path == null,
+          );
+
+          if (dryRun) {
+            final dirInfo = workingDirectory != null ? ' (in $path)' : '';
+            logger.info('${command.join(' ')}$dirInfo');
+            continue;
+          }
+
+          final progress = logger.progress(
+            'Removing ${skillsToRemove.length} tracked skill(s) '
+            'for $targetName...',
+          );
+
+          final result = await Process.run(
+            command.first,
+            command.sublist(1),
+            runInShell: true,
+            workingDirectory: workingDirectory,
+          );
+
+          if (result.exitCode == 0) {
+            progress.complete('Removed tracked skills for $targetName.');
+          } else {
+            progress.fail(
+              'Failed to remove tracked skills for $targetName:\n'
+              '${result.stderr}',
+            );
+            hasError = true;
+          }
+        }
+        logger.success('Existing tracked skills removed.\n');
       }
-      logger.success('Existing skills removed.\n');
     } else if (!dryRun && !clean) {
       logger.info('=== Updating skills (clean mode disabled) ===');
     }
@@ -711,6 +736,30 @@ class SyncCommand() extends SkillsSyncCommand {
       }
     }
     return names.toList();
+  }
+
+  /// Extracts sorted skill names tracked in a lockfile JSON map.
+  List<String> extractTrackedSkills(Map<String, dynamic> lockData) {
+    final skills = lockData['skills'];
+    if (skills is! Map) {
+      return const [];
+    }
+    return skills.keys.whereType<String>().toList()..sort();
+  }
+
+  /// Builds the `npx skills remove` command for the given [skills].
+  List<String> buildRemoveCommand(
+    List<String> skills, {
+    required bool isGlobal,
+  }) {
+    return [
+      'npx',
+      'skills',
+      'remove',
+      ...skills,
+      if (isGlobal) '--global',
+      '-y',
+    ];
   }
 
   void _deleteSkillDir(SkillEntry entry, String skillName) {

@@ -24,11 +24,11 @@ Here are the primary commands for `skills_sync`:
 
 ### `skills_sync sync`
 
-Synchronizes the skills based on the configuration file. By default, it performs a "clean" sync by removing existing skills first.
+Synchronizes the skills based on the configuration file. By default, it performs a "clean" sync by removing existing lockfile-tracked skills first (untracked local skills are preserved).
 
 - **When to use**: Immediately after any modifications to `~/.config/skills_sync/skills.yaml` or when the user requests to thoroughly ensure their skills directory matches the config.
 - **Options**:
-  - `--clean`: (Default: `true`) Deletes existing skills before installation.
+  - `--clean`: (Default: `true`) Deletes lockfile-tracked skills before installation (preserves untracked local skills).
   - `--no-clean`: Skips deletion. Faster, but might leave orphaned skills.
   - `--agent <name>`: Target a specific agent (default: `antigravity`). Use `*` for all.
 - **Action**: It fetches repositories, applies includes/excludes, and ensures locally installed skills match the configuration.

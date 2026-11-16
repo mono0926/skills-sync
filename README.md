@@ -35,7 +35,7 @@ dart pub global activate skills_sync
 
 1.  **Initialize**: Run `skills_sync init` to generate the default global configuration at `~/.config/skills_sync/skills.yaml`.
 2.  **Configure**: Edit the configuration to add your favorite skill sources.
-3.  **Sync**: Run `skills_sync sync` in your project to thoroughly sync skills (deletes extra skills by default).
+3.  **Sync**: Run `skills_sync sync` in your project to thoroughly sync skills (deletes extra lockfile-tracked skills by default, preserving untracked local skills).
 4.  **Update**: Run `skills_sync update` for a quick version update of all installed skills.
 
 ---
@@ -62,7 +62,7 @@ Edit the global or project-local `skills.yaml` to specify which skills to sync. 
 ### 3. Synchronization
 
 > [!WARNING]
-> By default, `sync` will **delete all existing skills** in the target directories before installing the ones defined in your configuration to ensure a clean state.
+> By default, `sync` will **delete lockfile-tracked skills** in the target directories before installing the ones defined in your configuration to ensure a clean state (untracked local skills are preserved).
 >
 > Use the `-y` or `--yes` flag to skip the confirmation prompt.
 
@@ -74,7 +74,7 @@ skills_sync sync
 
 #### Options:
 
-- `--clean`: (Default: `true`) Delete existing skills before syncing. Use `--no-clean` to skip this step for a faster sync.
+- `--clean`: (Default: `true`) Delete lockfile-tracked skills before syncing (preserves untracked local skills). Use `--no-clean` to skip this step for a faster sync.
 - `--agent <name>`: Specify the target agent (default: `antigravity`). Use `*` to target all agents.
 
 ### 4. Update
