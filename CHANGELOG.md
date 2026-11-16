@@ -1,3 +1,12 @@
+## 0.3.1 - 2026-11-16
+
+### Bug Fixes
+- Preserve untracked project-local skills during `skills_sync sync` (`--clean`) by removing only skills tracked in `skills-lock.json` / `.skill-lock.json` instead of running `npx skills remove --all`.
+- Skip the removal command and confirmation prompt when no tracked skills exist in target lockfiles.
+
+### Documentation
+- Update `README.md` and the bundled `skills_sync-cli` skill to clarify lockfile-based clean sync behavior.
+
 ## 0.3.0 - 2026-11-12
 
 ### Features
