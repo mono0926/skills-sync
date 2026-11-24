@@ -46,5 +46,14 @@ void main() {
       expect(cmd, ['npx', 'skills', 'remove', 'skill-a', '--global', '-y']);
       expect(cmd, isNot(contains('--all')));
     });
+
+    test('normalizeLockVersion clamps project-local lock version to <= 2', () {
+      expect(command.normalizeLockVersion(null, isGlobal: true), 3);
+      expect(command.normalizeLockVersion(3, isGlobal: true), 3);
+      expect(command.normalizeLockVersion(null, isGlobal: false), 2);
+      expect(command.normalizeLockVersion(3, isGlobal: false), 2);
+      expect(command.normalizeLockVersion(1, isGlobal: false), 1);
+      expect(command.normalizeLockVersion(2, isGlobal: false), 2);
+    });
   });
 }

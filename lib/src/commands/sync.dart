@@ -98,13 +98,14 @@ class SyncCommand() extends SkillsSyncCommand {
 
     // --- Helper Functions ---
     Map<String, dynamic> readLock(String? path) {
-      final lockPath = path == null
+      final isGlobal = path == null;
+      final lockPath = isGlobal
           ? expandPath('~/.agents/.skill-lock.json')
           : '${expandPath(path)}/skills-lock.json';
       final file = File(lockPath);
       if (!file.existsSync()) {
         return {
-          'version': 3,
+          'version': normalizeLockVersion(null, isGlobal: isGlobal),
           'skills': <String, dynamic>{},
           'dismissed': <String, dynamic>{},
         };
@@ -113,7 +114,7 @@ class SyncCommand() extends SkillsSyncCommand {
         return jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
       } on Exception catch (_) {
         return {
-          'version': 3,
+          'version': normalizeLockVersion(null, isGlobal: isGlobal),
           'skills': <String, dynamic>{},
           'dismissed': <String, dynamic>{},
         };
@@ -134,7 +135,19 @@ class SyncCommand() extends SkillsSyncCommand {
     // --- Before State ---
     final beforeLocks = <String?, Map<String, dynamic>>{};
     for (final path in validPaths) {
-      beforeLocks[path] = readLock(path);
+      final lock = readLock(path);
+      if (!dryRun && path != null) {
+        final lockFile = File('${expandPath(path)}/skills-lock.json');
+        final normalizedVersion = normalizeLockVersion(
+          lock['version'],
+          isGlobal: false,
+        );
+        if (lockFile.existsSync() && lock['version'] != normalizedVersion) {
+          lock['version'] = normalizedVersion;
+          writeLock(path, lock);
+        }
+      }
+      beforeLocks[path] = lock;
     }
 
     final yes = argResults?['yes'] as bool? ?? false;
@@ -570,7 +583,10 @@ class SyncCommand() extends SkillsSyncCommand {
         };
 
         final finalLock = <String, dynamic>{
-          'version': before['version'] ?? 3,
+          'version': normalizeLockVersion(
+            after['version'] ?? before['version'],
+            isGlobal: path == null,
+          ),
           'skills': mergedSkills,
           'dismissed': <String, dynamic>{},
         };
@@ -736,6 +752,17 @@ class SyncCommand() extends SkillsSyncCommand {
       }
     }
     return names.toList();
+  }
+
+  /// Normalizes lockfile `version` (`3` for global, `1..2` for project-local).
+  int normalizeLockVersion(Object? rawVersion, {required bool isGlobal}) {
+    if (isGlobal) {
+      return rawVersion is int ? rawVersion : 3;
+    }
+    if (rawVersion is int && rawVersion >= 1 && rawVersion <= 2) {
+      return rawVersion;
+    }
+    return 2;
   }
 
   /// Extracts sorted skill names tracked in a lockfile JSON map.
