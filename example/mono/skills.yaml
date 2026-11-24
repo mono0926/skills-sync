@@ -67,6 +67,8 @@ global:
     - responsive-design
   google-deepmind/science-skills:
     - literature-search-openalex
+  google-gemini/demolab:
+    - gemini-frontend-design
   # madteacher/mad-agents-skills:
   #   - '*'
   #   - '!flutter-navigation' # flutter-routing-and-navigation を優先するため
@@ -101,7 +103,7 @@ global:
   heyixuan2/bambu-studio-ai: # Bambu Lab P2S 活用のため
     - bambu-studio-ai
 ~/Git/tax-return:
-  mono0926/tex-return:
+  mono0926/tax-return:
   kazukinagata/shinkoku:
   googleworkspace/cli:
     - '*calendar*'
@@ -118,7 +120,7 @@ global:
     - '*workflow*'
 
 ~/Git/mono:
-  mono0926/mono:
+  # mono0926/mono: # SKILL.md が存在しないため（ルールのみ）
   googleworkspace/cli:
     - '*calendar*'
     - '*docs*'
