@@ -3,6 +3,8 @@ global:
   mono0926/skills:
     - '!flutter-upgrade-3-47'
   mono0926/skills-sync:
+  googlecolab/google-colab-cli:
+    - colab-operator
   # genkit-ai/skills:
   github/gh-stack:
     # google/skills:
