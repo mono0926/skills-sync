@@ -71,6 +71,10 @@ global:
     - literature-search-openalex
   google-gemini/demolab:
     - gemini-frontend-design
+  kucherenko/jscpd:
+    - jscpd
+    - dry-refactoring
+    - codebase-refactoring
   # madteacher/mad-agents-skills:
   #   - '*'
   #   - '!flutter-navigation' # flutter-routing-and-navigation を優先するため
